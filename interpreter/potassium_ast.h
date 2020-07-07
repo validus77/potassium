@@ -7,13 +7,12 @@ namespace potassium { namespace ast {
 class ASTNode {
 public:
 	virtual ~ASTNode() {}
-	virtual double eval() {}
+	virtual double eval() {return 0.0;}
 };
 
 class ASTValue : public ASTNode {
 public:
 	ASTValue(double value) : value_(value) {}
-	ASTValue(ASTValue& v) = default;
 	virtual double eval() { return value_;}
 private:
 	double value_;
@@ -49,9 +48,12 @@ private:
 
 class ASTPrint : public ASTNode {
 public:
-	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {}
+	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {
+	    std::cout << "Print() : " <<  value_->eval() << std::endl;
+	}
 	virtual double eval() {
 		std::cout << value_->eval() << std::endl;
+		return 0.0;
 	}
 private:
 	std::unique_ptr<ASTNode> value_;

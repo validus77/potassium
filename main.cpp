@@ -24,7 +24,7 @@ int main()
         CommonTokenStream tokens(&lexer);
         potassium::potassium_parser parser(&tokens);
         potassium::potassium_parser::LineContext* tree = parser.line();
-        std::unique_ptr<potassium::ast::ASTNode> program = std::move(visitor.visitLine(tree).as<std::unique_ptr<potassium::ast::ASTNode>>());
+        potassium::ast::ASTNode* program = visitor.visitLine(tree).as<potassium::ast::ASTPrint*>();
         program->eval();
 
 

@@ -3,6 +3,7 @@
 #include "./potassium/potassium_parser.h"
 #include "./potassium/potassium_lexer.h"
 #include "./interpreter/potassium_interpreter_visitor.h"
+#include "./interpreter/potassium_ast.h"
 
 using namespace std;
 using namespace antlr4;
@@ -23,7 +24,10 @@ int main()
         CommonTokenStream tokens(&lexer);
         potassium::potassium_parser parser(&tokens);
         potassium::potassium_parser::LineContext* tree = parser.line();
-        antlrcpp::Any program = visitor.visitLine(tree);
+        std::unique_ptr<potassium::ast::ASTNode> program = std::move(visitor.visitLine(tree).as<std::unique_ptr<potassium::ast::ASTNode>>());
+        program->eval();
+
+
 
     }
 

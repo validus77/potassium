@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -30,7 +30,13 @@ public:
 
     virtual antlrcpp::Any visitPrint(potassium_parser::PrintContext *context) = 0;
 
+    virtual antlrcpp::Any visitLogicalBinaryOperation(potassium_parser::LogicalBinaryOperationContext *context) = 0;
+
+    virtual antlrcpp::Any visitCondExpression(potassium_parser::CondExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *context) = 0;
+
+    virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *context) = 0;
 
     virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
 
@@ -39,6 +45,10 @@ public:
     virtual antlrcpp::Any visitBinaryOperation(potassium_parser::BinaryOperationContext *context) = 0;
 
     virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *context) = 0;
+
+    virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *context) = 0;
+
+    virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *context) = 0;
 
 
 };

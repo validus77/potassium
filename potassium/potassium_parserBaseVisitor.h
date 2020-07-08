@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -37,7 +37,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitLogicalBinaryOperation(potassium_parser::LogicalBinaryOperationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitCondExpression(potassium_parser::CondExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -54,6 +66,14 @@ public:
   }
 
   virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *ctx) override {
     return visitChildren(ctx);
   }
 

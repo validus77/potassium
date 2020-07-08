@@ -57,9 +57,43 @@ namespace potassium {
             return static_cast<ast::ASTNode*>(new ast::ASTBinaryOperation(op, std::move(left), std::move(right)));
         }
 
+	    virtual antlrcpp::Any visitLogicalBinaryOperation(potassium_parser::LogicalBinaryOperationContext *ctx) override {
+		    auto left = std::unique_ptr<ast::ASTNode>(this->visit(ctx->left).as<ast::ASTNode*>());
+		    auto right = std::unique_ptr<ast::ASTNode>(this->visit(ctx->right).as<ast::ASTNode*>());
+		    char op = ctx->op->getText()[0];
+
+		    return static_cast<ast::ASTNode*>(new ast::ASTBinaryOperation(op, std::move(left), std::move(right)));
+	    }
+
+	    virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
+		    auto right = std::unique_ptr<ast::ASTNode>(this->visit(ctx->expression()).as<ast::ASTNode*>());
+		    char op = ctx->NOT()->getText()[0]; // Note that NOT ius hardcoded as the only unary op right now.
+
+		    return static_cast<ast::ASTNode*>(new ast::ASTUnaryOperation(op,std::move(right)));
+	    }
+
         virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *ctx) override {
             return static_cast<ast::ASTNode*>(new ast::ASTVariable(ctx->getText()));
         }
+
+	    virtual antlrcpp::Any visitCondExpression(potassium_parser::CondExpressionContext *ctx) override {
+		    return visitChildren(ctx);
+	    }
+
+	    virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *ctx) override {
+		    auto test_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->test_exp).as<ast::ASTNode*>());
+		    auto then_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->then_exp).as<ast::ASTNode*>());
+        	return static_cast<ast::ASTNode*>(new ast::ASTCond(std::move(test_exp), std::move(then_exp)));
+	    }
+
+	    virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *ctx) override {
+		    auto test_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->test_exp).as<ast::ASTNode*>());
+		    auto then_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->then_exp).as<ast::ASTNode*>());
+		    auto else_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->else_exp).as<ast::ASTNode*>());
+
+		    return static_cast<ast::ASTNode*>(
+		    	new ast::ASTCond(std::move(test_exp), std::move(then_exp), std::move(else_exp)));
+	    }
 
     private:
 

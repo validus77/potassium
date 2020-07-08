@@ -9,6 +9,8 @@ class ASTNode {
 public:
 	virtual ~ASTNode() {}
 	virtual double eval(SymbolTable& symbols) {return 0.0;}
+protected:
+	bool eq(double lhs, double rhs);
 };
 
 class ASTValue : public ASTNode {
@@ -41,6 +43,18 @@ private:
 	std::unique_ptr<ASTNode> rhs_;
 };
 
+class ASTUnaryOperation : public ASTNode {
+public:
+	ASTUnaryOperation(char op, std::unique_ptr<ASTNode> rhs) :
+		op_(op), rhs_(std::move(rhs)) {}
+
+	virtual double eval(SymbolTable& symbols);
+private:
+	char op_;
+	std::unique_ptr<ASTNode> rhs_;
+};
+
+
 class ASTAssigment : public ASTNode {
 public:
 	ASTAssigment(std::unique_ptr<ASTVariable> variable, std::unique_ptr<ASTNode> value) :
@@ -63,6 +77,21 @@ public:
 	}
 private:
 	std::unique_ptr<ASTNode> value_;
+};
+
+class ASTCond : public ASTNode {
+public:
+	ASTCond(std::unique_ptr<ASTNode> test_exp, std::unique_ptr<ASTNode> then_exp, std::unique_ptr<ASTNode> else_exp) :
+		test_exp_(move(test_exp)), then_exp_(std::move(then_exp)), else_exp_(std::move(else_exp)) {}
+
+	ASTCond(std::unique_ptr<ASTNode> test_exp, std::unique_ptr<ASTNode> then_exp) :
+		test_exp_(move(test_exp)), then_exp_(std::move(then_exp)) {}
+
+	virtual double eval(SymbolTable& symbols);
+private:
+	std::unique_ptr<ASTNode> test_exp_;
+	std::unique_ptr<ASTNode> then_exp_;
+	std::unique_ptr<ASTNode> else_exp_;
 };
 
 }}

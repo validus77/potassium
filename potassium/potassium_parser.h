@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -13,14 +13,15 @@ namespace potassium {
 class  potassium_parser : public antlr4::Parser {
 public:
   enum {
-    NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, PLUS = 7, 
-    MINUS = 8, MULT = 9, DIV = 10, ASSIGN = 11, LPAREN = 12, RPAREN = 13, 
-    ID = 14
+    NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
+    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, ASSIGN = 14, 
+    LPAREN = 15, RPAREN = 16, AND = 17, OR = 18, EQ = 19, XOR = 20, NOT = 21, 
+    LT = 22, GT = 23, ID = 24
   };
 
   enum {
     RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RulePrint = 3, 
-    RuleExpression = 4
+    RuleExpression = 4, RuleCond_expresion = 5
   };
 
   potassium_parser(antlr4::TokenStream *input);
@@ -37,7 +38,8 @@ public:
   class StatementContext;
   class AssignmentContext;
   class PrintContext;
-  class ExpressionContext; 
+  class ExpressionContext;
+  class Cond_expresionContext; 
 
   class  LineContext : public antlr4::ParserRuleContext {
   public:
@@ -131,11 +133,48 @@ public:
    
   };
 
+  class  LogicalBinaryOperationContext : public ExpressionContext {
+  public:
+    LogicalBinaryOperationContext(ExpressionContext *ctx);
+
+    potassium_parser::ExpressionContext *left = nullptr;
+    antlr4::Token *op = nullptr;
+    potassium_parser::ExpressionContext *right = nullptr;
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    antlr4::tree::TerminalNode *AND();
+    antlr4::tree::TerminalNode *OR();
+    antlr4::tree::TerminalNode *EQ();
+    antlr4::tree::TerminalNode *LT();
+    antlr4::tree::TerminalNode *GT();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  CondExpressionContext : public ExpressionContext {
+  public:
+    CondExpressionContext(ExpressionContext *ctx);
+
+    Cond_expresionContext *cond_expresion();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  IntLiteralContext : public ExpressionContext {
   public:
     IntLiteralContext(ExpressionContext *ctx);
 
     antlr4::tree::TerminalNode *INTLIT();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  LogicalUnaryOperationContext : public ExpressionContext {
+  public:
+    LogicalUnaryOperationContext(ExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *NOT();
+    ExpressionContext *expression();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -188,6 +227,53 @@ public:
 
   ExpressionContext* expression();
   ExpressionContext* expression(int precedence);
+  class  Cond_expresionContext : public antlr4::ParserRuleContext {
+  public:
+    Cond_expresionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    Cond_expresionContext() = default;
+    void copyFrom(Cond_expresionContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  IfCondContext : public Cond_expresionContext {
+  public:
+    IfCondContext(Cond_expresionContext *ctx);
+
+    potassium_parser::ExpressionContext *test_exp = nullptr;
+    potassium_parser::ExpressionContext *then_exp = nullptr;
+    antlr4::tree::TerminalNode *IF();
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  IfElseCondContext : public Cond_expresionContext {
+  public:
+    IfElseCondContext(Cond_expresionContext *ctx);
+
+    potassium_parser::ExpressionContext *test_exp = nullptr;
+    potassium_parser::ExpressionContext *then_exp = nullptr;
+    potassium_parser::ExpressionContext *else_exp = nullptr;
+    antlr4::tree::TerminalNode *IF();
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    antlr4::tree::TerminalNode *ELSE();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  Cond_expresionContext* cond_expresion();
+
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
   bool expressionSempred(ExpressionContext *_localctx, size_t predicateIndex);

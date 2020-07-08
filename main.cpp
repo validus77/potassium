@@ -4,6 +4,7 @@
 #include "./potassium/potassium_lexer.h"
 #include "./interpreter/potassium_interpreter_visitor.h"
 #include "./interpreter/potassium_ast.h"
+#include "./interpreter/symbol_table.h"
 
 using namespace std;
 using namespace antlr4;
@@ -14,6 +15,8 @@ int main()
     string str_input;
     std::stringstream stream;
     potassium::potassium_interpreter_visitor visitor;
+    potassium::ast::SymbolTable global_symbols;
+
     while(str_input != "quit()")
     {
         getline(cin, str_input);
@@ -25,7 +28,7 @@ int main()
         potassium::potassium_parser parser(&tokens);
         potassium::potassium_parser::LineContext* tree = parser.line();
         auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
-	    program->eval();
+	    program->eval(global_symbols);
 
 
 

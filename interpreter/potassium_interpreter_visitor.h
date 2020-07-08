@@ -44,7 +44,7 @@ namespace potassium {
         }
 
         virtual antlrcpp::Any visitParenExpression(potassium_parser::ParenExpressionContext *ctx) override {
-            return static_cast<ast::ASTNode*>(visitChildren(ctx));
+            return static_cast<ast::ASTNode*>(visit(ctx->expression()));
         }
 
         virtual antlrcpp::Any visitBinaryOperation(potassium_parser::BinaryOperationContext *ctx) override {

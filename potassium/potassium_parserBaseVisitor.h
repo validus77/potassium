@@ -25,11 +25,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitFunctionAssigmentStantment(potassium_parser::FunctionAssigmentStantmentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitPrintStatment(potassium_parser::PrintStatmentContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunction_assignment(potassium_parser::Function_assignmentContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -65,6 +73,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitFuncCallExpression(potassium_parser::FuncCallExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -74,6 +86,10 @@ public:
   }
 
   virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *ctx) override {
     return visitChildren(ctx);
   }
 

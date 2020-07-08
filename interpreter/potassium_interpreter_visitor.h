@@ -14,11 +14,11 @@ namespace potassium {
         }
 
         virtual antlrcpp::Any visitAssigmentStantment(potassium_parser::AssigmentStantmentContext *ctx) override {
-            return static_cast<ast::ASTNode*>(visitChildren(ctx));
+            return static_cast<ast::ASTNode*>(visit(ctx->assignment()));
         }
 
         virtual antlrcpp::Any visitPrintStatment(potassium_parser::PrintStatmentContext *ctx) override {
-            return static_cast<ast::ASTNode*>(visitChildren(ctx));
+            return static_cast<ast::ASTNode*>(visit(ctx->print()));
         }
 
         virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *ctx) override {
@@ -28,18 +28,15 @@ namespace potassium {
         }
 
         virtual antlrcpp::Any visitPrint(potassium_parser::PrintContext *ctx) override {
-            //std::cout << "Print: " << std::endl;
 	        auto value = std::unique_ptr<ast::ASTNode>(this->visit(ctx->expression()).as<ast::ASTNode*>());
             return static_cast<ast::ASTNode*>(new ast::ASTPrint(std::move(value)));
         }
 
         virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *ctx) override {
-             //std::cout << "IntLit: " << ctx->getText() << std::endl;
 	        return static_cast<ast::ASTNode*>(new ast::ASTValue(std::stof(ctx->getText())));
         }
 
         virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
-              //std::cout << "FloatLit: " << ctx->getText() << std::endl;
 	        return static_cast<ast::ASTNode*>(new ast::ASTValue(std::stof(ctx->getText())));
         }
 
@@ -48,7 +45,6 @@ namespace potassium {
         }
 
         virtual antlrcpp::Any visitBinaryOperation(potassium_parser::BinaryOperationContext *ctx) override {
-            //std::cout << "bin exprection: " << ctx->getText() << std::endl;
 
 	        auto left = std::unique_ptr<ast::ASTNode>(this->visit(ctx->left).as<ast::ASTNode*>());
 	        auto right = std::unique_ptr<ast::ASTNode>(this->visit(ctx->right).as<ast::ASTNode*>());
@@ -93,6 +89,35 @@ namespace potassium {
 
 		    return static_cast<ast::ASTNode*>(
 		    	new ast::ASTCond(std::move(test_exp), std::move(then_exp), std::move(else_exp)));
+	    }
+
+	    virtual antlrcpp::Any visitFunctionAssigmentStantment(potassium_parser::FunctionAssigmentStantmentContext
+	  *ctx) override {
+		    return visitChildren(ctx);
+	    }
+
+	    virtual antlrcpp::Any visitFunction_assignment(potassium_parser::Function_assignmentContext *ctx) override {
+		    auto body = std::unique_ptr<ast::ASTNode>(this->visit(ctx->expression()).as<ast::ASTNode*>());
+		    std::vector<std::unique_ptr<ast::ASTVariable>> params;
+
+
+		    for(auto& id : ctx->ID()) {
+			    params.emplace_back(std::make_unique<ast::ASTVariable>(id->getText()));
+		    }
+		    return static_cast<ast::ASTNode*>(new ast::ASTFunction(ctx->ID(0)->getText(), std::move(body), std::move
+		    (params)));
+	    }
+
+	    virtual antlrcpp::Any visitFuncCallExpression(potassium_parser::FuncCallExpressionContext *ctx) override {
+		    return visitChildren(ctx);
+	    }
+
+	    virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *ctx) override {
+		    std::vector<std::unique_ptr<ast::ASTNode>> params;
+		    for(auto& pram_exp : ctx->expression()){
+			    params.emplace_back(std::unique_ptr<ast::ASTNode>(this->visit(pram_exp).as<ast::ASTNode*>()));
+		    }
+        	return static_cast<ast::ASTNode*>(new ast::ASTFunctionCall(ctx->ID()->getText(), std::move(params)));
 	    }
 
     private:

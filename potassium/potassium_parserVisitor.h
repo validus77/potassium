@@ -24,9 +24,13 @@ public:
 
     virtual antlrcpp::Any visitAssigmentStantment(potassium_parser::AssigmentStantmentContext *context) = 0;
 
+    virtual antlrcpp::Any visitFunctionAssigmentStantment(potassium_parser::FunctionAssigmentStantmentContext *context) = 0;
+
     virtual antlrcpp::Any visitPrintStatment(potassium_parser::PrintStatmentContext *context) = 0;
 
     virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunction_assignment(potassium_parser::Function_assignmentContext *context) = 0;
 
     virtual antlrcpp::Any visitPrint(potassium_parser::PrintContext *context) = 0;
 
@@ -44,11 +48,15 @@ public:
 
     virtual antlrcpp::Any visitBinaryOperation(potassium_parser::BinaryOperationContext *context) = 0;
 
+    virtual antlrcpp::Any visitFuncCallExpression(potassium_parser::FuncCallExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *context) = 0;
 
     virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *context) = 0;
 
     virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *context) = 0;
 
 
 };

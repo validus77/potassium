@@ -68,10 +68,10 @@ potassium_parser::LineContext* potassium_parser::line() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(12);
+    setState(16);
     statement();
 
-    setState(13);
+    setState(17);
     match(potassium_parser::NEWLINE);
    
   }
@@ -129,6 +129,21 @@ antlrcpp::Any potassium_parser::AssigmentStantmentContext::accept(tree::ParseTre
   else
     return visitor->visitChildren(this);
 }
+//----------------- FunctionAssigmentStantmentContext ------------------------------------------------------------------
+
+potassium_parser::Function_assignmentContext* potassium_parser::FunctionAssigmentStantmentContext::function_assignment() {
+  return getRuleContext<potassium_parser::Function_assignmentContext>(0);
+}
+
+potassium_parser::FunctionAssigmentStantmentContext::FunctionAssigmentStantmentContext(StatementContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any potassium_parser::FunctionAssigmentStantmentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
+    return parserVisitor->visitFunctionAssigmentStantment(this);
+  else
+    return visitor->visitChildren(this);
+}
 potassium_parser::StatementContext* potassium_parser::statement() {
   StatementContext *_localctx = _tracker.createInstance<StatementContext>(_ctx, getState());
   enterRule(_localctx, 2, potassium_parser::RuleStatement);
@@ -137,27 +152,33 @@ potassium_parser::StatementContext* potassium_parser::statement() {
     exitRule();
   });
   try {
-    setState(17);
+    setState(22);
     _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case potassium_parser::LET: {
-        _localctx = dynamic_cast<StatementContext *>(_tracker.createInstance<potassium_parser::AssigmentStantmentContext>(_localctx));
-        enterOuterAlt(_localctx, 1);
-        setState(15);
-        assignment();
-        break;
-      }
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 0, _ctx)) {
+    case 1: {
+      _localctx = dynamic_cast<StatementContext *>(_tracker.createInstance<potassium_parser::AssigmentStantmentContext>(_localctx));
+      enterOuterAlt(_localctx, 1);
+      setState(19);
+      assignment();
+      break;
+    }
 
-      case potassium_parser::PRINT: {
-        _localctx = dynamic_cast<StatementContext *>(_tracker.createInstance<potassium_parser::PrintStatmentContext>(_localctx));
-        enterOuterAlt(_localctx, 2);
-        setState(16);
-        print();
-        break;
-      }
+    case 2: {
+      _localctx = dynamic_cast<StatementContext *>(_tracker.createInstance<potassium_parser::FunctionAssigmentStantmentContext>(_localctx));
+      enterOuterAlt(_localctx, 2);
+      setState(20);
+      function_assignment();
+      break;
+    }
 
-    default:
-      throw NoViableAltException(this);
+    case 3: {
+      _localctx = dynamic_cast<StatementContext *>(_tracker.createInstance<potassium_parser::PrintStatmentContext>(_localctx));
+      enterOuterAlt(_localctx, 3);
+      setState(21);
+      print();
+      break;
+    }
+
     }
    
   }
@@ -214,13 +235,103 @@ potassium_parser::AssignmentContext* potassium_parser::assignment() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(19);
+    setState(24);
     match(potassium_parser::LET);
-    setState(20);
+    setState(25);
     match(potassium_parser::ID);
-    setState(21);
+    setState(26);
     match(potassium_parser::ASSIGN);
-    setState(22);
+    setState(27);
+    expression(0);
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- Function_assignmentContext ------------------------------------------------------------------
+
+potassium_parser::Function_assignmentContext::Function_assignmentContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* potassium_parser::Function_assignmentContext::LET() {
+  return getToken(potassium_parser::LET, 0);
+}
+
+std::vector<tree::TerminalNode *> potassium_parser::Function_assignmentContext::ID() {
+  return getTokens(potassium_parser::ID);
+}
+
+tree::TerminalNode* potassium_parser::Function_assignmentContext::ID(size_t i) {
+  return getToken(potassium_parser::ID, i);
+}
+
+tree::TerminalNode* potassium_parser::Function_assignmentContext::LPAREN() {
+  return getToken(potassium_parser::LPAREN, 0);
+}
+
+tree::TerminalNode* potassium_parser::Function_assignmentContext::RPAREN() {
+  return getToken(potassium_parser::RPAREN, 0);
+}
+
+tree::TerminalNode* potassium_parser::Function_assignmentContext::ASSIGN() {
+  return getToken(potassium_parser::ASSIGN, 0);
+}
+
+potassium_parser::ExpressionContext* potassium_parser::Function_assignmentContext::expression() {
+  return getRuleContext<potassium_parser::ExpressionContext>(0);
+}
+
+
+size_t potassium_parser::Function_assignmentContext::getRuleIndex() const {
+  return potassium_parser::RuleFunction_assignment;
+}
+
+
+antlrcpp::Any potassium_parser::Function_assignmentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
+    return parserVisitor->visitFunction_assignment(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+potassium_parser::Function_assignmentContext* potassium_parser::function_assignment() {
+  Function_assignmentContext *_localctx = _tracker.createInstance<Function_assignmentContext>(_ctx, getState());
+  enterRule(_localctx, 6, potassium_parser::RuleFunction_assignment);
+  size_t _la = 0;
+
+  auto onExit = finally([=] {
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(29);
+    match(potassium_parser::LET);
+    setState(30);
+    match(potassium_parser::ID);
+    setState(31);
+    match(potassium_parser::LPAREN);
+    setState(35);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while (_la == potassium_parser::ID) {
+      setState(32);
+      match(potassium_parser::ID);
+      setState(37);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
+    setState(38);
+    match(potassium_parser::RPAREN);
+    setState(39);
+    match(potassium_parser::ASSIGN);
+    setState(40);
     expression(0);
    
   }
@@ -270,20 +381,20 @@ antlrcpp::Any potassium_parser::PrintContext::accept(tree::ParseTreeVisitor *vis
 
 potassium_parser::PrintContext* potassium_parser::print() {
   PrintContext *_localctx = _tracker.createInstance<PrintContext>(_ctx, getState());
-  enterRule(_localctx, 6, potassium_parser::RulePrint);
+  enterRule(_localctx, 8, potassium_parser::RulePrint);
 
   auto onExit = finally([=] {
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(24);
+    setState(42);
     match(potassium_parser::PRINT);
-    setState(25);
+    setState(43);
     match(potassium_parser::LPAREN);
-    setState(26);
+    setState(44);
     expression(0);
-    setState(27);
+    setState(45);
     match(potassium_parser::RPAREN);
    
   }
@@ -472,6 +583,21 @@ antlrcpp::Any potassium_parser::BinaryOperationContext::accept(tree::ParseTreeVi
   else
     return visitor->visitChildren(this);
 }
+//----------------- FuncCallExpressionContext ------------------------------------------------------------------
+
+potassium_parser::Function_callContext* potassium_parser::FuncCallExpressionContext::function_call() {
+  return getRuleContext<potassium_parser::Function_callContext>(0);
+}
+
+potassium_parser::FuncCallExpressionContext::FuncCallExpressionContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any potassium_parser::FuncCallExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
+    return parserVisitor->visitFuncCallExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- VarReferenceContext ------------------------------------------------------------------
 
 tree::TerminalNode* potassium_parser::VarReferenceContext::ID() {
@@ -498,8 +624,8 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
   potassium_parser::ExpressionContext *_localctx = _tracker.createInstance<ExpressionContext>(_ctx, parentState);
   potassium_parser::ExpressionContext *previousContext = _localctx;
   (void)previousContext; // Silence compiler, in case the context is not used by generated code.
-  size_t startState = 8;
-  enterRecursionRule(_localctx, 8, potassium_parser::RuleExpression, precedence);
+  size_t startState = 10;
+  enterRecursionRule(_localctx, 10, potassium_parser::RuleExpression, precedence);
 
     size_t _la = 0;
 
@@ -509,94 +635,101 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(40);
+    setState(59);
     _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case potassium_parser::NOT: {
-        _localctx = _tracker.createInstance<LogicalUnaryOperationContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx)) {
+    case 1: {
+      _localctx = _tracker.createInstance<FuncCallExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
 
-        setState(30);
-        match(potassium_parser::NOT);
-        setState(31);
-        expression(7);
-        break;
-      }
+      setState(48);
+      function_call();
+      break;
+    }
 
-      case potassium_parser::LPAREN: {
-        _localctx = _tracker.createInstance<ParenExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(32);
-        match(potassium_parser::LPAREN);
-        setState(33);
-        expression(0);
-        setState(34);
-        match(potassium_parser::RPAREN);
-        break;
-      }
+    case 2: {
+      _localctx = _tracker.createInstance<LogicalUnaryOperationContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(49);
+      match(potassium_parser::NOT);
+      setState(50);
+      expression(7);
+      break;
+    }
 
-      case potassium_parser::IF: {
-        _localctx = _tracker.createInstance<CondExpressionContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(36);
-        cond_expresion();
-        break;
-      }
+    case 3: {
+      _localctx = _tracker.createInstance<ParenExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(51);
+      match(potassium_parser::LPAREN);
+      setState(52);
+      expression(0);
+      setState(53);
+      match(potassium_parser::RPAREN);
+      break;
+    }
 
-      case potassium_parser::ID: {
-        _localctx = _tracker.createInstance<VarReferenceContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(37);
-        match(potassium_parser::ID);
-        break;
-      }
+    case 4: {
+      _localctx = _tracker.createInstance<CondExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(55);
+      cond_expresion();
+      break;
+    }
 
-      case potassium_parser::INTLIT: {
-        _localctx = _tracker.createInstance<IntLiteralContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(38);
-        match(potassium_parser::INTLIT);
-        break;
-      }
+    case 5: {
+      _localctx = _tracker.createInstance<VarReferenceContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(56);
+      match(potassium_parser::ID);
+      break;
+    }
 
-      case potassium_parser::FLOATLIT: {
-        _localctx = _tracker.createInstance<FloatLiteralContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(39);
-        match(potassium_parser::FLOATLIT);
-        break;
-      }
+    case 6: {
+      _localctx = _tracker.createInstance<IntLiteralContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(57);
+      match(potassium_parser::INTLIT);
+      break;
+    }
 
-    default:
-      throw NoViableAltException(this);
+    case 7: {
+      _localctx = _tracker.createInstance<FloatLiteralContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(58);
+      match(potassium_parser::FLOATLIT);
+      break;
+    }
+
     }
     _ctx->stop = _input->LT(-1);
-    setState(53);
+    setState(72);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(51);
+        setState(70);
         _errHandler->sync(this);
-        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx)) {
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx)) {
         case 1: {
           auto newContext = _tracker.createInstance<BinaryOperationContext>(_tracker.createInstance<ExpressionContext>(parentContext, parentState));
           _localctx = newContext;
           newContext->left = previousContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
-          setState(42);
+          setState(61);
 
-          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
-          setState(43);
+          if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
+          setState(62);
           dynamic_cast<BinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
           if (!(_la == potassium_parser::MULT
@@ -608,8 +741,8 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(44);
-          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(10);
+          setState(63);
+          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(11);
           break;
         }
 
@@ -618,10 +751,10 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
           _localctx = newContext;
           newContext->left = previousContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
-          setState(45);
+          setState(64);
 
-          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
-          setState(46);
+          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
+          setState(65);
           dynamic_cast<BinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
           if (!(_la == potassium_parser::PLUS
@@ -633,8 +766,8 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(47);
-          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(9);
+          setState(66);
+          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(10);
           break;
         }
 
@@ -643,10 +776,10 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
           _localctx = newContext;
           newContext->left = previousContext;
           pushNewRecursionContext(newContext, startState, RuleExpression);
-          setState(48);
+          setState(67);
 
           if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
-          setState(49);
+          setState(68);
           dynamic_cast<LogicalBinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
           if (!((((_la & ~ 0x3fULL) == 0) &&
@@ -661,16 +794,16 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(50);
+          setState(69);
           dynamic_cast<LogicalBinaryOperationContext *>(_localctx)->right = expression(7);
           break;
         }
 
         } 
       }
-      setState(55);
+      setState(74);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -764,27 +897,27 @@ antlrcpp::Any potassium_parser::IfElseCondContext::accept(tree::ParseTreeVisitor
 }
 potassium_parser::Cond_expresionContext* potassium_parser::cond_expresion() {
   Cond_expresionContext *_localctx = _tracker.createInstance<Cond_expresionContext>(_ctx, getState());
-  enterRule(_localctx, 10, potassium_parser::RuleCond_expresion);
+  enterRule(_localctx, 12, potassium_parser::RuleCond_expresion);
 
   auto onExit = finally([=] {
     exitRule();
   });
   try {
-    setState(70);
+    setState(89);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 5, _ctx)) {
     case 1: {
       _localctx = dynamic_cast<Cond_expresionContext *>(_tracker.createInstance<potassium_parser::IfCondContext>(_localctx));
       enterOuterAlt(_localctx, 1);
-      setState(56);
+      setState(75);
       match(potassium_parser::IF);
-      setState(57);
+      setState(76);
       match(potassium_parser::LPAREN);
-      setState(58);
+      setState(77);
       dynamic_cast<IfCondContext *>(_localctx)->test_exp = expression(0);
-      setState(59);
+      setState(78);
       match(potassium_parser::RPAREN);
-      setState(60);
+      setState(79);
       dynamic_cast<IfCondContext *>(_localctx)->then_exp = expression(0);
       break;
     }
@@ -792,19 +925,19 @@ potassium_parser::Cond_expresionContext* potassium_parser::cond_expresion() {
     case 2: {
       _localctx = dynamic_cast<Cond_expresionContext *>(_tracker.createInstance<potassium_parser::IfElseCondContext>(_localctx));
       enterOuterAlt(_localctx, 2);
-      setState(62);
+      setState(81);
       match(potassium_parser::IF);
-      setState(63);
+      setState(82);
       match(potassium_parser::LPAREN);
-      setState(64);
+      setState(83);
       dynamic_cast<IfElseCondContext *>(_localctx)->test_exp = expression(0);
-      setState(65);
+      setState(84);
       match(potassium_parser::RPAREN);
-      setState(66);
+      setState(85);
       dynamic_cast<IfElseCondContext *>(_localctx)->then_exp = expression(0);
-      setState(67);
+      setState(86);
       match(potassium_parser::ELSE);
-      setState(68);
+      setState(87);
       dynamic_cast<IfElseCondContext *>(_localctx)->else_exp = expression(0);
       break;
     }
@@ -821,9 +954,91 @@ potassium_parser::Cond_expresionContext* potassium_parser::cond_expresion() {
   return _localctx;
 }
 
+//----------------- Function_callContext ------------------------------------------------------------------
+
+potassium_parser::Function_callContext::Function_callContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* potassium_parser::Function_callContext::ID() {
+  return getToken(potassium_parser::ID, 0);
+}
+
+tree::TerminalNode* potassium_parser::Function_callContext::LPAREN() {
+  return getToken(potassium_parser::LPAREN, 0);
+}
+
+tree::TerminalNode* potassium_parser::Function_callContext::RPAREN() {
+  return getToken(potassium_parser::RPAREN, 0);
+}
+
+std::vector<potassium_parser::ExpressionContext *> potassium_parser::Function_callContext::expression() {
+  return getRuleContexts<potassium_parser::ExpressionContext>();
+}
+
+potassium_parser::ExpressionContext* potassium_parser::Function_callContext::expression(size_t i) {
+  return getRuleContext<potassium_parser::ExpressionContext>(i);
+}
+
+
+size_t potassium_parser::Function_callContext::getRuleIndex() const {
+  return potassium_parser::RuleFunction_call;
+}
+
+
+antlrcpp::Any potassium_parser::Function_callContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
+    return parserVisitor->visitFunction_call(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+potassium_parser::Function_callContext* potassium_parser::function_call() {
+  Function_callContext *_localctx = _tracker.createInstance<Function_callContext>(_ctx, getState());
+  enterRule(_localctx, 14, potassium_parser::RuleFunction_call);
+  size_t _la = 0;
+
+  auto onExit = finally([=] {
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(91);
+    match(potassium_parser::ID);
+    setState(92);
+    match(potassium_parser::LPAREN);
+    setState(96);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while ((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & ((1ULL << potassium_parser::INTLIT)
+      | (1ULL << potassium_parser::FLOATLIT)
+      | (1ULL << potassium_parser::IF)
+      | (1ULL << potassium_parser::LPAREN)
+      | (1ULL << potassium_parser::NOT)
+      | (1ULL << potassium_parser::ID))) != 0)) {
+      setState(93);
+      expression(0);
+      setState(98);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
+    setState(99);
+    match(potassium_parser::RPAREN);
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
 bool potassium_parser::sempred(RuleContext *context, size_t ruleIndex, size_t predicateIndex) {
   switch (ruleIndex) {
-    case 4: return expressionSempred(dynamic_cast<ExpressionContext *>(context), predicateIndex);
+    case 5: return expressionSempred(dynamic_cast<ExpressionContext *>(context), predicateIndex);
 
   default:
     break;
@@ -833,8 +1048,8 @@ bool potassium_parser::sempred(RuleContext *context, size_t ruleIndex, size_t pr
 
 bool potassium_parser::expressionSempred(ExpressionContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 0: return precpred(_ctx, 9);
-    case 1: return precpred(_ctx, 8);
+    case 0: return precpred(_ctx, 10);
+    case 1: return precpred(_ctx, 9);
     case 2: return precpred(_ctx, 6);
 
   default:
@@ -852,7 +1067,8 @@ atn::ATN potassium_parser::_atn;
 std::vector<uint16_t> potassium_parser::_serializedATN;
 
 std::vector<std::string> potassium_parser::_ruleNames = {
-  "line", "statement", "assignment", "print", "expression", "cond_expresion"
+  "line", "statement", "assignment", "function_assignment", "print", "expression", 
+  "cond_expresion", "function_call"
 };
 
 std::vector<std::string> potassium_parser::_literalNames = {
@@ -887,55 +1103,74 @@ potassium_parser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x1a, 0x4b, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
-    0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x3, 
-    0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 0x14, 0xa, 0x3, 
-    0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x5, 0x3, 0x5, 
+    0x3, 0x1a, 0x68, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 0x4, 
+    0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 
+    0x3, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 0x19, 0xa, 0x3, 0x3, 0x4, 0x3, 0x4, 
+    0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 
+    0x7, 0x5, 0x24, 0xa, 0x5, 0xc, 0x5, 0xe, 0x5, 0x27, 0xb, 0x5, 0x3, 0x5, 
     0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x5, 0x6, 0x2b, 0xa, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 
-    0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x7, 0x6, 0x36, 0xa, 0x6, 
-    0xc, 0x6, 0xe, 0x6, 0x39, 0xb, 0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 
-    0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 
-    0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x5, 0x7, 0x49, 0xa, 0x7, 0x3, 0x7, 
-    0x2, 0x3, 0xa, 0x8, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0x2, 0x5, 0x3, 0x2, 
-    0xe, 0xf, 0x3, 0x2, 0xc, 0xd, 0x4, 0x2, 0x13, 0x15, 0x18, 0x19, 0x2, 
-    0x4e, 0x2, 0xe, 0x3, 0x2, 0x2, 0x2, 0x4, 0x13, 0x3, 0x2, 0x2, 0x2, 0x6, 
-    0x15, 0x3, 0x2, 0x2, 0x2, 0x8, 0x1a, 0x3, 0x2, 0x2, 0x2, 0xa, 0x2a, 
-    0x3, 0x2, 0x2, 0x2, 0xc, 0x48, 0x3, 0x2, 0x2, 0x2, 0xe, 0xf, 0x5, 0x4, 
-    0x3, 0x2, 0xf, 0x10, 0x7, 0x3, 0x2, 0x2, 0x10, 0x3, 0x3, 0x2, 0x2, 0x2, 
-    0x11, 0x14, 0x5, 0x6, 0x4, 0x2, 0x12, 0x14, 0x5, 0x8, 0x5, 0x2, 0x13, 
-    0x11, 0x3, 0x2, 0x2, 0x2, 0x13, 0x12, 0x3, 0x2, 0x2, 0x2, 0x14, 0x5, 
-    0x3, 0x2, 0x2, 0x2, 0x15, 0x16, 0x7, 0x7, 0x2, 0x2, 0x16, 0x17, 0x7, 
-    0x1a, 0x2, 0x2, 0x17, 0x18, 0x7, 0x10, 0x2, 0x2, 0x18, 0x19, 0x5, 0xa, 
-    0x6, 0x2, 0x19, 0x7, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x1b, 0x7, 0x8, 0x2, 
-    0x2, 0x1b, 0x1c, 0x7, 0x11, 0x2, 0x2, 0x1c, 0x1d, 0x5, 0xa, 0x6, 0x2, 
-    0x1d, 0x1e, 0x7, 0x12, 0x2, 0x2, 0x1e, 0x9, 0x3, 0x2, 0x2, 0x2, 0x1f, 
-    0x20, 0x8, 0x6, 0x1, 0x2, 0x20, 0x21, 0x7, 0x17, 0x2, 0x2, 0x21, 0x2b, 
-    0x5, 0xa, 0x6, 0x9, 0x22, 0x23, 0x7, 0x11, 0x2, 0x2, 0x23, 0x24, 0x5, 
-    0xa, 0x6, 0x2, 0x24, 0x25, 0x7, 0x12, 0x2, 0x2, 0x25, 0x2b, 0x3, 0x2, 
-    0x2, 0x2, 0x26, 0x2b, 0x5, 0xc, 0x7, 0x2, 0x27, 0x2b, 0x7, 0x1a, 0x2, 
-    0x2, 0x28, 0x2b, 0x7, 0x5, 0x2, 0x2, 0x29, 0x2b, 0x7, 0x6, 0x2, 0x2, 
-    0x2a, 0x1f, 0x3, 0x2, 0x2, 0x2, 0x2a, 0x22, 0x3, 0x2, 0x2, 0x2, 0x2a, 
-    0x26, 0x3, 0x2, 0x2, 0x2, 0x2a, 0x27, 0x3, 0x2, 0x2, 0x2, 0x2a, 0x28, 
-    0x3, 0x2, 0x2, 0x2, 0x2a, 0x29, 0x3, 0x2, 0x2, 0x2, 0x2b, 0x37, 0x3, 
-    0x2, 0x2, 0x2, 0x2c, 0x2d, 0xc, 0xb, 0x2, 0x2, 0x2d, 0x2e, 0x9, 0x2, 
-    0x2, 0x2, 0x2e, 0x36, 0x5, 0xa, 0x6, 0xc, 0x2f, 0x30, 0xc, 0xa, 0x2, 
-    0x2, 0x30, 0x31, 0x9, 0x3, 0x2, 0x2, 0x31, 0x36, 0x5, 0xa, 0x6, 0xb, 
-    0x32, 0x33, 0xc, 0x8, 0x2, 0x2, 0x33, 0x34, 0x9, 0x4, 0x2, 0x2, 0x34, 
-    0x36, 0x5, 0xa, 0x6, 0x9, 0x35, 0x2c, 0x3, 0x2, 0x2, 0x2, 0x35, 0x2f, 
-    0x3, 0x2, 0x2, 0x2, 0x35, 0x32, 0x3, 0x2, 0x2, 0x2, 0x36, 0x39, 0x3, 
-    0x2, 0x2, 0x2, 0x37, 0x35, 0x3, 0x2, 0x2, 0x2, 0x37, 0x38, 0x3, 0x2, 
-    0x2, 0x2, 0x38, 0xb, 0x3, 0x2, 0x2, 0x2, 0x39, 0x37, 0x3, 0x2, 0x2, 
-    0x2, 0x3a, 0x3b, 0x7, 0x9, 0x2, 0x2, 0x3b, 0x3c, 0x7, 0x11, 0x2, 0x2, 
-    0x3c, 0x3d, 0x5, 0xa, 0x6, 0x2, 0x3d, 0x3e, 0x7, 0x12, 0x2, 0x2, 0x3e, 
-    0x3f, 0x5, 0xa, 0x6, 0x2, 0x3f, 0x49, 0x3, 0x2, 0x2, 0x2, 0x40, 0x41, 
-    0x7, 0x9, 0x2, 0x2, 0x41, 0x42, 0x7, 0x11, 0x2, 0x2, 0x42, 0x43, 0x5, 
-    0xa, 0x6, 0x2, 0x43, 0x44, 0x7, 0x12, 0x2, 0x2, 0x44, 0x45, 0x5, 0xa, 
-    0x6, 0x2, 0x45, 0x46, 0x7, 0xa, 0x2, 0x2, 0x46, 0x47, 0x5, 0xa, 0x6, 
-    0x2, 0x47, 0x49, 0x3, 0x2, 0x2, 0x2, 0x48, 0x3a, 0x3, 0x2, 0x2, 0x2, 
-    0x48, 0x40, 0x3, 0x2, 0x2, 0x2, 0x49, 0xd, 0x3, 0x2, 0x2, 0x2, 0x7, 
-    0x13, 0x2a, 0x35, 0x37, 0x48, 
+    0x3, 0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 
+    0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x5, 0x7, 
+    0x3e, 0xa, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 
+    0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x7, 0x7, 0x49, 0xa, 0x7, 0xc, 0x7, 
+    0xe, 0x7, 0x4c, 0xb, 0x7, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 
+    0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 
+    0x8, 0x3, 0x8, 0x3, 0x8, 0x5, 0x8, 0x5c, 0xa, 0x8, 0x3, 0x9, 0x3, 0x9, 
+    0x3, 0x9, 0x7, 0x9, 0x61, 0xa, 0x9, 0xc, 0x9, 0xe, 0x9, 0x64, 0xb, 0x9, 
+    0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x2, 0x3, 0xc, 0xa, 0x2, 0x4, 0x6, 0x8, 
+    0xa, 0xc, 0xe, 0x10, 0x2, 0x5, 0x3, 0x2, 0xe, 0xf, 0x3, 0x2, 0xc, 0xd, 
+    0x4, 0x2, 0x13, 0x15, 0x18, 0x19, 0x2, 0x6d, 0x2, 0x12, 0x3, 0x2, 0x2, 
+    0x2, 0x4, 0x18, 0x3, 0x2, 0x2, 0x2, 0x6, 0x1a, 0x3, 0x2, 0x2, 0x2, 0x8, 
+    0x1f, 0x3, 0x2, 0x2, 0x2, 0xa, 0x2c, 0x3, 0x2, 0x2, 0x2, 0xc, 0x3d, 
+    0x3, 0x2, 0x2, 0x2, 0xe, 0x5b, 0x3, 0x2, 0x2, 0x2, 0x10, 0x5d, 0x3, 
+    0x2, 0x2, 0x2, 0x12, 0x13, 0x5, 0x4, 0x3, 0x2, 0x13, 0x14, 0x7, 0x3, 
+    0x2, 0x2, 0x14, 0x3, 0x3, 0x2, 0x2, 0x2, 0x15, 0x19, 0x5, 0x6, 0x4, 
+    0x2, 0x16, 0x19, 0x5, 0x8, 0x5, 0x2, 0x17, 0x19, 0x5, 0xa, 0x6, 0x2, 
+    0x18, 0x15, 0x3, 0x2, 0x2, 0x2, 0x18, 0x16, 0x3, 0x2, 0x2, 0x2, 0x18, 
+    0x17, 0x3, 0x2, 0x2, 0x2, 0x19, 0x5, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x1b, 
+    0x7, 0x7, 0x2, 0x2, 0x1b, 0x1c, 0x7, 0x1a, 0x2, 0x2, 0x1c, 0x1d, 0x7, 
+    0x10, 0x2, 0x2, 0x1d, 0x1e, 0x5, 0xc, 0x7, 0x2, 0x1e, 0x7, 0x3, 0x2, 
+    0x2, 0x2, 0x1f, 0x20, 0x7, 0x7, 0x2, 0x2, 0x20, 0x21, 0x7, 0x1a, 0x2, 
+    0x2, 0x21, 0x25, 0x7, 0x11, 0x2, 0x2, 0x22, 0x24, 0x7, 0x1a, 0x2, 0x2, 
+    0x23, 0x22, 0x3, 0x2, 0x2, 0x2, 0x24, 0x27, 0x3, 0x2, 0x2, 0x2, 0x25, 
+    0x23, 0x3, 0x2, 0x2, 0x2, 0x25, 0x26, 0x3, 0x2, 0x2, 0x2, 0x26, 0x28, 
+    0x3, 0x2, 0x2, 0x2, 0x27, 0x25, 0x3, 0x2, 0x2, 0x2, 0x28, 0x29, 0x7, 
+    0x12, 0x2, 0x2, 0x29, 0x2a, 0x7, 0x10, 0x2, 0x2, 0x2a, 0x2b, 0x5, 0xc, 
+    0x7, 0x2, 0x2b, 0x9, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x2d, 0x7, 0x8, 0x2, 
+    0x2, 0x2d, 0x2e, 0x7, 0x11, 0x2, 0x2, 0x2e, 0x2f, 0x5, 0xc, 0x7, 0x2, 
+    0x2f, 0x30, 0x7, 0x12, 0x2, 0x2, 0x30, 0xb, 0x3, 0x2, 0x2, 0x2, 0x31, 
+    0x32, 0x8, 0x7, 0x1, 0x2, 0x32, 0x3e, 0x5, 0x10, 0x9, 0x2, 0x33, 0x34, 
+    0x7, 0x17, 0x2, 0x2, 0x34, 0x3e, 0x5, 0xc, 0x7, 0x9, 0x35, 0x36, 0x7, 
+    0x11, 0x2, 0x2, 0x36, 0x37, 0x5, 0xc, 0x7, 0x2, 0x37, 0x38, 0x7, 0x12, 
+    0x2, 0x2, 0x38, 0x3e, 0x3, 0x2, 0x2, 0x2, 0x39, 0x3e, 0x5, 0xe, 0x8, 
+    0x2, 0x3a, 0x3e, 0x7, 0x1a, 0x2, 0x2, 0x3b, 0x3e, 0x7, 0x5, 0x2, 0x2, 
+    0x3c, 0x3e, 0x7, 0x6, 0x2, 0x2, 0x3d, 0x31, 0x3, 0x2, 0x2, 0x2, 0x3d, 
+    0x33, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x35, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x39, 
+    0x3, 0x2, 0x2, 0x2, 0x3d, 0x3a, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x3b, 0x3, 
+    0x2, 0x2, 0x2, 0x3d, 0x3c, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x4a, 0x3, 0x2, 
+    0x2, 0x2, 0x3f, 0x40, 0xc, 0xc, 0x2, 0x2, 0x40, 0x41, 0x9, 0x2, 0x2, 
+    0x2, 0x41, 0x49, 0x5, 0xc, 0x7, 0xd, 0x42, 0x43, 0xc, 0xb, 0x2, 0x2, 
+    0x43, 0x44, 0x9, 0x3, 0x2, 0x2, 0x44, 0x49, 0x5, 0xc, 0x7, 0xc, 0x45, 
+    0x46, 0xc, 0x8, 0x2, 0x2, 0x46, 0x47, 0x9, 0x4, 0x2, 0x2, 0x47, 0x49, 
+    0x5, 0xc, 0x7, 0x9, 0x48, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x48, 0x42, 0x3, 
+    0x2, 0x2, 0x2, 0x48, 0x45, 0x3, 0x2, 0x2, 0x2, 0x49, 0x4c, 0x3, 0x2, 
+    0x2, 0x2, 0x4a, 0x48, 0x3, 0x2, 0x2, 0x2, 0x4a, 0x4b, 0x3, 0x2, 0x2, 
+    0x2, 0x4b, 0xd, 0x3, 0x2, 0x2, 0x2, 0x4c, 0x4a, 0x3, 0x2, 0x2, 0x2, 
+    0x4d, 0x4e, 0x7, 0x9, 0x2, 0x2, 0x4e, 0x4f, 0x7, 0x11, 0x2, 0x2, 0x4f, 
+    0x50, 0x5, 0xc, 0x7, 0x2, 0x50, 0x51, 0x7, 0x12, 0x2, 0x2, 0x51, 0x52, 
+    0x5, 0xc, 0x7, 0x2, 0x52, 0x5c, 0x3, 0x2, 0x2, 0x2, 0x53, 0x54, 0x7, 
+    0x9, 0x2, 0x2, 0x54, 0x55, 0x7, 0x11, 0x2, 0x2, 0x55, 0x56, 0x5, 0xc, 
+    0x7, 0x2, 0x56, 0x57, 0x7, 0x12, 0x2, 0x2, 0x57, 0x58, 0x5, 0xc, 0x7, 
+    0x2, 0x58, 0x59, 0x7, 0xa, 0x2, 0x2, 0x59, 0x5a, 0x5, 0xc, 0x7, 0x2, 
+    0x5a, 0x5c, 0x3, 0x2, 0x2, 0x2, 0x5b, 0x4d, 0x3, 0x2, 0x2, 0x2, 0x5b, 
+    0x53, 0x3, 0x2, 0x2, 0x2, 0x5c, 0xf, 0x3, 0x2, 0x2, 0x2, 0x5d, 0x5e, 
+    0x7, 0x1a, 0x2, 0x2, 0x5e, 0x62, 0x7, 0x11, 0x2, 0x2, 0x5f, 0x61, 0x5, 
+    0xc, 0x7, 0x2, 0x60, 0x5f, 0x3, 0x2, 0x2, 0x2, 0x61, 0x64, 0x3, 0x2, 
+    0x2, 0x2, 0x62, 0x60, 0x3, 0x2, 0x2, 0x2, 0x62, 0x63, 0x3, 0x2, 0x2, 
+    0x2, 0x63, 0x65, 0x3, 0x2, 0x2, 0x2, 0x64, 0x62, 0x3, 0x2, 0x2, 0x2, 
+    0x65, 0x66, 0x7, 0x12, 0x2, 0x2, 0x66, 0x11, 0x3, 0x2, 0x2, 0x2, 0x9, 
+    0x18, 0x25, 0x3d, 0x48, 0x4a, 0x5b, 0x62, 
   };
 
   atn::ATNDeserializer deserializer;

@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <vector>
 #include "symbol_table.h"
 namespace potassium { namespace ast {
 
@@ -92,6 +93,31 @@ private:
 	std::unique_ptr<ASTNode> test_exp_;
 	std::unique_ptr<ASTNode> then_exp_;
 	std::unique_ptr<ASTNode> else_exp_;
+};
+
+class ASTFunction : public ASTNode {
+public:
+	ASTFunction(std::string name, std::unique_ptr<ASTNode> body, std::vector<std::unique_ptr<ASTVariable>> params) :
+	name_(name), body_(std::move(body)), params_(std::move(params)) {}
+
+	virtual double eval(SymbolTable& symbols);
+	std::vector<std::unique_ptr<ASTVariable>>& params() {return params_;}
+	std::unique_ptr<ASTNode>& body() {return body_;}
+private:
+	std::string name_;
+	std::unique_ptr<ASTNode> body_;
+	std::vector<std::unique_ptr<ASTVariable>> params_;
+};
+
+class ASTFunctionCall : public ASTNode {
+public:
+	ASTFunctionCall(std::string name, std::vector<std::unique_ptr<ASTNode>> params) :
+	name_(name), params_(std::move(params)) {}
+
+	virtual double eval(SymbolTable& symbols);
+private:
+	std::string name_;
+	std::vector<std::unique_ptr<ASTNode>> params_;
 };
 
 }}

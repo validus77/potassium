@@ -58,4 +58,22 @@ double ASTCond::eval(SymbolTable &symbols) {
 		return 0.0;
 }
 
+double ASTFunction::eval(SymbolTable &symbols) {
+	symbols.setFun(name_, std::unique_ptr<ASTFunction>(this));
+}
+
+double ASTFunctionCall::eval(SymbolTable &symbols) {
+	SymbolTable function_scope_symbols(&symbols);
+	ASTFunction* funct = symbols.getFun(name_);
+	if(funct == nullptr) {
+		std::cout << "No function defined: " << name_ << std::endl;
+		return 0.0;
+	}
+	auto& funct_prams = funct->params();
+	for(int i = 0; i < params_.size(); i++) {
+		function_scope_symbols.set(funct_prams[i+1]->name(), params_[i]->eval(symbols));
+	}
+	return funct->body()->eval(function_scope_symbols);
+}
+
 }}

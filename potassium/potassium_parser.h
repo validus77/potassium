@@ -20,8 +20,8 @@ public:
   };
 
   enum {
-    RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RulePrint = 3, 
-    RuleExpression = 4, RuleCond_expresion = 5
+    RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RuleFunction_assignment = 3, 
+    RulePrint = 4, RuleExpression = 5, RuleCond_expresion = 6, RuleFunction_call = 7
   };
 
   potassium_parser(antlr4::TokenStream *input);
@@ -37,9 +37,11 @@ public:
   class LineContext;
   class StatementContext;
   class AssignmentContext;
+  class Function_assignmentContext;
   class PrintContext;
   class ExpressionContext;
-  class Cond_expresionContext; 
+  class Cond_expresionContext;
+  class Function_callContext; 
 
   class  LineContext : public antlr4::ParserRuleContext {
   public:
@@ -86,6 +88,15 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  FunctionAssigmentStantmentContext : public StatementContext {
+  public:
+    FunctionAssigmentStantmentContext(StatementContext *ctx);
+
+    Function_assignmentContext *function_assignment();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   StatementContext* statement();
 
   class  AssignmentContext : public antlr4::ParserRuleContext {
@@ -103,6 +114,25 @@ public:
   };
 
   AssignmentContext* assignment();
+
+  class  Function_assignmentContext : public antlr4::ParserRuleContext {
+  public:
+    Function_assignmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LET();
+    std::vector<antlr4::tree::TerminalNode *> ID();
+    antlr4::tree::TerminalNode* ID(size_t i);
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    antlr4::tree::TerminalNode *ASSIGN();
+    ExpressionContext *expression();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Function_assignmentContext* function_assignment();
 
   class  PrintContext : public antlr4::ParserRuleContext {
   public:
@@ -216,6 +246,15 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  FuncCallExpressionContext : public ExpressionContext {
+  public:
+    FuncCallExpressionContext(ExpressionContext *ctx);
+
+    Function_callContext *function_call();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  VarReferenceContext : public ExpressionContext {
   public:
     VarReferenceContext(ExpressionContext *ctx);
@@ -273,6 +312,23 @@ public:
   };
 
   Cond_expresionContext* cond_expresion();
+
+  class  Function_callContext : public antlr4::ParserRuleContext {
+  public:
+    Function_callContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Function_callContext* function_call();
 
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

@@ -30,6 +30,8 @@ public:
 	ASTBinaryOperation(char op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs) :
 		op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
+	virtual double eval();
+
 private:
 	char op_;
 	std::unique_ptr<ASTNode> lhs_;
@@ -49,7 +51,6 @@ private:
 class ASTPrint : public ASTNode {
 public:
 	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {
-	    std::cout << "Print() : " <<  value_->eval() << std::endl;
 	}
 	virtual double eval() {
 		std::cout << value_->eval() << std::endl;

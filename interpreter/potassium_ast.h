@@ -40,7 +40,7 @@ public:
 	ASTValue(double value) : value_(value) {}
 	virtual double eval(SymbolTable& symbols) { return value_;}
 	virtual llvm::Value *codegen(SymbolTable& symbols) {
-		return llvm::ConstantFP::get(TheContext, llvm::APFloat(value_));}
+		return llvm::ConstantFP::get(PotassiumContext, llvm::APFloat(value_));}
 private:
 	double value_;
 };

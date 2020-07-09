@@ -37,7 +37,7 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 	potassium::potassium_parser::LineContext* tree = parser.line();
 	auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
 	program->eval(globals);
-	//program->codegen(globals);
+	program->codegen(globals);
 }
 
 int main(int argc, char** argv)
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 		printBanner(enableJIT);
 
 	if(enableJIT) {
-		potassium::ast::PotassiumModule = std::make_unique<llvm::Module>("my cool jit",potassium::ast::PotassiumContext);
+		potassium::ast::PotassiumModule = std::make_unique<llvm::Module>("potassium jit",potassium::ast::PotassiumContext);
 	}
 
 	//Read the prelude file

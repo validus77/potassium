@@ -153,7 +153,6 @@ llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols){
         std::cout << "Incorrect # arguments passed" << std::endl;
         return nullptr;
     }
-
     std::vector<llvm::Value *> paramsVal;
     for (unsigned i = 0, e = params_.size(); i != e; ++i) {
         //function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols));

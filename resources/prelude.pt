@@ -1,0 +1,4 @@
+let max(x y) <- if(x > y) x else y
+let min(x y) <- if(x < y) x else y
+let sq(x) <- x * x
+let pow(x y) <- if(y = 0) 0 else if(y = 1) x else x * pow(x y-1)

@@ -20,10 +20,10 @@
 #include "symbol_table.h"
 
 namespace potassium { namespace ast {
-static llvm::LLVMContext TheContext;
-static llvm::IRBuilder<> Builder(TheContext);
-static std::unique_ptr<llvm::Module> TheModule;
-static std::map<std::string, llvm::Value *> NamedValues;
+
+static llvm::LLVMContext PotassiumContext;
+static llvm::IRBuilder<> Builder(PotassiumContext);
+static std::unique_ptr<llvm::Module> PotassiumModule;
 
 class ASTNode {
 public:

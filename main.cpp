@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 		printBanner(enableJIT);
 
 	if(enableJIT) {
-		potassium::ast::TheModule = std::make_unique<llvm::Module>("my cool jit", potassium::ast::TheContext);
+		potassium::ast::PotassiumModule = std::make_unique<llvm::Module>("my cool jit",potassium::ast::PotassiumContext);
 	}
 
 	//Read the prelude file
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 			{
 				runPotassiumLine(str_input, global_symbols, visitor);
 				if(enableJIT)
-					potassium::ast::TheModule->print(llvm::errs(), nullptr);
+					potassium::ast::PotassiumModule->print(llvm::errs(), nullptr);
 			}
 		}
 	} else {
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 				std::string line;
 				while (std::getline(file, line))
 				{
-					potassium::ast::TheModule->print(llvm::errs(), nullptr);
+					potassium::ast::PotassiumModule->print(llvm::errs(), nullptr);
 					runPotassiumLine(line, global_symbols, visitor);
 				}
 			}

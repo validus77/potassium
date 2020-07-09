@@ -49,9 +49,9 @@ class ASTVariable : public ASTNode {
 public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
-	virtual double eval(SymbolTable& symbols) {return symbols.get(name_);}
+	virtual double eval(SymbolTable& symbols) {return symbols.getVar(name_);}
 	virtual llvm::Value *codegen(SymbolTable& symbols) {
-		return symbols.getVar(name_);
+		return symbols.getVarIR(name_);
 	}
 private:
 	std::string name_;
@@ -77,6 +77,8 @@ public:
 		op_(op), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
+    virtual llvm::Value *codegen(SymbolTable& symbols);
+
 private:
 	char op_;
 	std::unique_ptr<ASTNode> rhs_;
@@ -100,7 +102,8 @@ public:
 	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {
 	}
 	virtual double eval(SymbolTable& symbols) {
-		std::cout << value_->eval(symbols) << std::endl;
+        typedef std::numeric_limits< double > dbl;
+        std::cout << value_->eval(symbols) << std::endl;
 		return 0.0;
 	}
 private:
@@ -142,6 +145,8 @@ public:
 	name_(name), params_(std::move(params)) {}
 
 	virtual double eval(SymbolTable& symbols);
+    virtual llvm::Value *codegen(SymbolTable& symbols);
+
 private:
 	std::string name_;
 	std::vector<std::unique_ptr<ASTNode>> params_;

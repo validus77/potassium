@@ -25,19 +25,22 @@ class SymbolTable {
 public:
 	SymbolTable() = default;
 	SymbolTable(SymbolTable* parent) : parent_table_(parent) {}
-	double get(std::string);
-	llvm::Value* getVar(std::string);
+	double getVar(std::string);
+	llvm::Value* getVarIR(std::string);
 
-	void set(std::string, double);
-	void set(std::string, llvm::Value*);
+	void setVar(std::string, double);
+	void setVar(std::string, llvm::Value*);
 
 	ASTFunction* getFun(std::string);
+    llvm::Function* getFunIR(std::string);
 	void setFun(std::string, std::unique_ptr<ASTFunction>);
+    void setFun(std::string, llvm::Function*);
 
-	std::vector<std::string> getFuns();
+
+    std::vector<std::string> getFuns();
 private:
 	std::map<std::string, std::pair<double, llvm::Value*>> table_;
-	std::map<std::string, std::unique_ptr<ASTFunction>> func_table_;
+	std::map<std::string, std::pair<std::unique_ptr<ASTFunction>, llvm::Function*>> func_table_;
 	SymbolTable* parent_table_;
 };
 

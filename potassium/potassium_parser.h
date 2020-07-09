@@ -1,5 +1,5 @@
 
-// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -14,9 +14,9 @@ class  potassium_parser : public antlr4::Parser {
 public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
-    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, ASSIGN = 14, 
-    LPAREN = 15, RPAREN = 16, AND = 17, OR = 18, EQ = 19, XOR = 20, NOT = 21, 
-    LT = 22, GT = 23, ID = 24
+    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
+    ASSIGN = 15, LPAREN = 16, RPAREN = 17, AND = 18, OR = 19, EQ = 20, XOR = 21, 
+    NOT = 22, LT = 23, GT = 24, ID = 25
   };
 
   enum {
@@ -240,6 +240,7 @@ public:
     ExpressionContext* expression(size_t i);
     antlr4::tree::TerminalNode *MULT();
     antlr4::tree::TerminalNode *DIV();
+    antlr4::tree::TerminalNode *MOD();
     antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *MINUS();
 

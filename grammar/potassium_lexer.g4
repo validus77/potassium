@@ -23,6 +23,7 @@ WHILE       : 'while';
  MINUS      : '-';
  MULT       : '*';
  DIV        : '/';
+ MOD        : '%';
  ASSIGN     : '<-';
  LPAREN     : '(';
  RPAREN     : ')';

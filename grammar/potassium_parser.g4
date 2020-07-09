@@ -12,13 +12,13 @@ function_assignment : LET ID LPAREN ID* RPAREN ASSIGN  expression;
 
 print       : PRINT LPAREN expression RPAREN;
 
-expression  : left=expression op=(MULT|DIV) right=expression            # binaryOperation
+expression  : LPAREN expression RPAREN                                  # parenExpression
+            | left=expression op=(MULT|DIV|MOD) right=expression        # binaryOperation
             | left=expression op=(PLUS|MINUS) right=expression          # binaryOperation
-            | function_call                                             # funcCallExpression
             | NOT expression                                            # logicalUnaryOperation
             | left=expression op=(AND|OR|EQ|LT|GT) right=expression     # logicalBinaryOperation
-            | LPAREN expression RPAREN                                  # parenExpression
             | cond_expresion                                            # condExpression
+            | function_call                                             # funcCallExpression
             | ID                                                        # varReference
             | INTLIT                                                    # intLiteral
             | FLOATLIT                                                  # floatLiteral;

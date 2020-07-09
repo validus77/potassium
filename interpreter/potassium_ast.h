@@ -3,13 +3,34 @@
 #include <memory>
 #include <iostream>
 #include <vector>
+
+// LLVM
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+
 #include "symbol_table.h"
+
 namespace potassium { namespace ast {
+static llvm::LLVMContext TheContext;
+static llvm::IRBuilder<> Builder(TheContext);
+static std::unique_ptr<llvm::Module> TheModule;
+static std::map<std::string, llvm::Value *> NamedValues;
 
 class ASTNode {
 public:
 	virtual ~ASTNode() {}
 	virtual double eval(SymbolTable& symbols) {return 0.0;}
+	virtual llvm::Value *codegen(SymbolTable& symbols) {return nullptr;}
+
 protected:
 	bool eq(double lhs, double rhs);
 };
@@ -18,6 +39,8 @@ class ASTValue : public ASTNode {
 public:
 	ASTValue(double value) : value_(value) {}
 	virtual double eval(SymbolTable& symbols) { return value_;}
+	virtual llvm::Value *codegen(SymbolTable& symbols) {
+		return llvm::ConstantFP::get(TheContext, llvm::APFloat(value_));}
 private:
 	double value_;
 };
@@ -27,6 +50,9 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols) {return symbols.get(name_);}
+	virtual llvm::Value *codegen(SymbolTable& symbols) {
+		return symbols.getVar(name_);
+	}
 private:
 	std::string name_;
 };
@@ -37,6 +63,7 @@ public:
 		op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
+	virtual llvm::Value *codegen(SymbolTable& symbols);
 
 private:
 	char op_;

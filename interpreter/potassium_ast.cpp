@@ -1,4 +1,5 @@
 #include "potassium_ast.h"
+
 namespace potassium { namespace ast {
 
 bool ASTNode::eq(double lhs, double rhs) {
@@ -31,6 +32,39 @@ double ASTBinaryOperation::eval(SymbolTable& symbols) {
 			return (lhs_->eval(symbols) < rhs_->eval(symbols))? 1.0 : 0.0;
 		default:
 			return 0.0;
+	}
+}
+
+llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols) {
+
+	llvm::Value *L = lhs_->codegen(symbols);
+	llvm::Value *R = rhs_->codegen(symbols);
+	if (!L || !R)
+		return nullptr;
+
+	switch (op_) {
+		case '*':
+			return Builder.CreateMul(L,R, "multtmp");
+		case '/':
+			return Builder.CreateFDiv(L,R, "multdiv");
+		case '+':
+			return Builder.CreateFAdd(L, R, "addtmp");
+		case '-':
+			return Builder.CreateSub(L, R, "subtmp");
+		case '&':
+			return nullptr;
+		case '|':
+			return nullptr;
+		case '^':
+			return nullptr;
+		case '=':
+			return Builder.CreateFCmpOEQ(L,R,"eqtmp");
+		case '>':
+			return Builder.CreateFCmpOGT(L,R,"gttmp");
+		case '<':
+			return Builder.CreateFCmpOLT(L,R,"gttmp");
+		default:
+			return nullptr;
 	}
 }
 

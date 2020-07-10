@@ -39,7 +39,7 @@ class ASTValue : public ASTNode {
 public:
 	ASTValue(double value) : value_(value) {}
 	virtual double eval(SymbolTable& symbols) { return value_;}
-	virtual llvm::Value *codegen(SymbolTable& symbols) {
+	virtual llvm::Value* codegen(SymbolTable& symbols) {
 		return llvm::ConstantFP::get(PotassiumContext, llvm::APFloat(value_));}
 private:
 	double value_;
@@ -50,9 +50,7 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols) {return symbols.getVar(name_);}
-	virtual llvm::Value *codegen(SymbolTable& symbols) {
-		return symbols.getVarIR(name_);
-	}
+	virtual llvm::Value *codegen(SymbolTable& symbols) {return symbols.getVarIR(name_);}
 private:
 	std::string name_;
 };
@@ -63,7 +61,7 @@ public:
 		op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
-	virtual llvm::Value *codegen(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols);
 
 private:
 	char op_;
@@ -77,7 +75,7 @@ public:
 		op_(op), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
-    virtual llvm::Value *codegen(SymbolTable& symbols);
+    virtual llvm::Value* codegen(SymbolTable& symbols);
 
 private:
 	char op_;
@@ -91,6 +89,7 @@ public:
 		variable_(std::move(variable)), value_(std::move(value)) {}
 
 	virtual double eval(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols);
 private:
 	std::unique_ptr<ASTVariable> variable_;
 	std::unique_ptr<ASTNode> value_;
@@ -119,6 +118,7 @@ public:
 		test_exp_(move(test_exp)), then_exp_(std::move(then_exp)) {}
 
 	virtual double eval(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols);
 private:
 	std::unique_ptr<ASTNode> test_exp_;
 	std::unique_ptr<ASTNode> then_exp_;
@@ -145,7 +145,7 @@ public:
 	name_(name), params_(std::move(params)) {}
 
 	virtual double eval(SymbolTable& symbols);
-    virtual llvm::Value *codegen(SymbolTable& symbols);
+    virtual llvm::Value* codegen(SymbolTable& symbols);
 
 private:
 	std::string name_;

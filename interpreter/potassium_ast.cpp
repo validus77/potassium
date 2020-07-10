@@ -114,6 +114,15 @@ double ASTAssigment::eval(SymbolTable &symbols) {
 	return val;
 }
 
+
+llvm::Value* ASTAssigment::codegen(SymbolTable& symbols) {
+	llvm::Value* val = value_->codegen(symbols);
+	symbols.setVar(variable_->name(), val);
+	return val;
+}
+
+
+
 double ASTCond::eval(SymbolTable &symbols) {
 	if(!eq(test_exp_->eval(symbols), 0.0))
 		return then_exp_->eval(symbols);
@@ -122,6 +131,51 @@ double ASTCond::eval(SymbolTable &symbols) {
 	else
 		return 0.0;
 }
+
+llvm::Value* ASTCond::codegen(SymbolTable& symbols) {
+	llvm::Value* test_value = test_exp_->codegen(symbols);
+	if (!test_value)
+		return nullptr;
+	test_value = Builder.CreateFCmpONE(
+		test_value, llvm::ConstantFP::get(PotassiumContext, llvm::APFloat(0.0)), "ifcond");
+	llvm::Function *function = Builder.GetInsertBlock()->getParent();
+
+	llvm::BasicBlock *then_block =
+		llvm::BasicBlock::Create(PotassiumContext, "then", function);
+	llvm::BasicBlock *else_block = llvm::BasicBlock::Create(PotassiumContext, "else");
+	llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(PotassiumContext, "ifcont");
+
+	Builder.CreateCondBr(test_value, then_block, else_block);
+// Then block
+	Builder.SetInsertPoint(then_block);
+	llvm::Value* then_value = then_exp_->codegen(symbols);
+	if (!then_value)
+		return nullptr;
+
+	Builder.CreateBr(merge_block);
+	then_block = Builder.GetInsertBlock();
+// Else block
+	function->getBasicBlockList().push_back(else_block);
+	Builder.SetInsertPoint(else_block);
+
+	llvm::Value* else_value = else_exp_->codegen(symbols);
+	if (!else_value)
+		return nullptr;
+
+// Merged IF Then Else
+	Builder.CreateBr(merge_block);
+	merge_block = Builder.GetInsertBlock();
+
+	function->getBasicBlockList().push_back(merge_block);
+	Builder.SetInsertPoint(merge_block);
+	llvm::PHINode* phi =
+		Builder.CreatePHI(llvm::Type::getDoubleTy(PotassiumContext), 2, "iftmp");
+
+	phi->addIncoming(then_value, then_block);
+	phi->addIncoming(else_value, else_block);
+	return phi;
+}
+
 
 double ASTFunction::eval(SymbolTable &symbols) {
 	symbols.setFun(name_, std::unique_ptr<ASTFunction>(this));
@@ -140,6 +194,7 @@ double ASTFunctionCall::eval(SymbolTable &symbols) {
 	}
 	return funct->body()->eval(function_scope_symbols);
 }
+
 llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols){
 // Look up the name in the global module table.
     SymbolTable function_scope_symbols(&symbols);

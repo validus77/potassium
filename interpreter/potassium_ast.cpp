@@ -47,7 +47,7 @@ llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols, LLVMContext* cont
 
 	switch (op_) {
 		case '*':
-			return context->builder.CreateMul(L,R, "multtmp");
+			return context->builder.CreateFMul(L,R, "multtmp");
 		case '/':
 			return context->builder.CreateFDiv(L,R, "multdiv");
         case '%':
@@ -55,16 +55,22 @@ llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols, LLVMContext* cont
 		case '+':
 			return context->builder.CreateFAdd(L, R, "addtmp");
 		case '-':
-			return context->builder.CreateSub(L, R, "subtmp");
+			return context->builder.CreateFSub(L, R, "subtmp");
 		case '&':
-		    L = context->builder.CreateAnd(L,R,"andtmp");
+		    L = context->builder.CreateFPToUI(L,llvm::Type::getInt1Ty(context->potassium_context),"lhsi");
+            R = context->builder.CreateFPToUI(R,llvm::Type::getInt1Ty(context->potassium_context),"rhsi");
+            L = context->builder.CreateAnd(L,R,"andtmp");
             return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '|':
+            L = context->builder.CreateFPToUI(L,llvm::Type::getInt1Ty(context->potassium_context),"lhsi");
+            R = context->builder.CreateFPToUI(R,llvm::Type::getInt1Ty(context->potassium_context),"rhsi");
             L = context->builder.CreateOr(L,R,"ortmp");
             return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '^':
+            L = context->builder.CreateFPToUI(L,llvm::Type::getInt1Ty(context->potassium_context),"lhsi");
+            R = context->builder.CreateFPToUI(R,llvm::Type::getInt1Ty(context->potassium_context),"rhsi");
             L = context->builder.CreateXor(L,R,"andtmp");
             return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
@@ -159,11 +165,11 @@ llvm::Value* ASTCond::codegen(SymbolTable& symbols, LLVMContext* context) {
 	if (!else_value)
 		return nullptr;
 
-// Merged IF Then Else
-    context->builder.CreateBr(merge_block);
-	merge_block = context->builder.GetInsertBlock();
+	context->builder.CreateBr(merge_block);
+	else_block = context->builder.GetInsertBlock();
 
-	function->getBasicBlockList().push_back(merge_block);
+    // Merged IF Then Else
+    function->getBasicBlockList().push_back(merge_block);
     context->builder.SetInsertPoint(merge_block);
 	llvm::PHINode* phi =
             context->builder.CreatePHI(llvm::Type::getDoubleTy(context->potassium_context), 2, "iftmp");

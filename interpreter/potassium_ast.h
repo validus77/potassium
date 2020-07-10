@@ -21,26 +21,35 @@
 
 namespace potassium { namespace ast {
 
-static llvm::LLVMContext PotassiumContext;
-static llvm::IRBuilder<> Builder(PotassiumContext);
-static std::unique_ptr<llvm::Module> PotassiumModule;
+struct LLVMContext {
+    LLVMContext():
+        builder(potassium_context),
+        potassium_module(std::unique_ptr<llvm::Module>(new llvm::Module("potassium jit",potassium_context))){}
+
+    llvm::LLVMContext potassium_context;
+    llvm::IRBuilder<> builder;
+    std::unique_ptr<llvm::Module> potassium_module;
+};
 
 class ASTNode {
 public:
+    ASTNode() = default;
+
 	virtual ~ASTNode() {}
 	virtual double eval(SymbolTable& symbols) {return 0.0;}
-	virtual llvm::Value *codegen(SymbolTable& symbols) {return nullptr;}
+	virtual llvm::Value *codegen(SymbolTable& symbols, LLVMContext* context) {return nullptr;}
 
 protected:
 	bool eq(double lhs, double rhs);
+    LLVMContext* context = nullptr;
 };
 
 class ASTValue : public ASTNode {
 public:
 	ASTValue(double value) : value_(value) {}
 	virtual double eval(SymbolTable& symbols) { return value_;}
-	virtual llvm::Value* codegen(SymbolTable& symbols) {
-		return llvm::ConstantFP::get(PotassiumContext, llvm::APFloat(value_));}
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {
+		return llvm::ConstantFP::get(context->potassium_context, llvm::APFloat(value_));}
 private:
 	double value_;
 };
@@ -50,7 +59,7 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols) {return symbols.getVar(name_);}
-	virtual llvm::Value* codegen(SymbolTable& symbols) {return symbols.getVarIR(name_);}
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return symbols.getVarIR(name_);}
 private:
 	std::string name_;
 };
@@ -61,7 +70,7 @@ public:
 		op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
-	virtual llvm::Value* codegen(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:
 	char op_;
@@ -75,7 +84,7 @@ public:
 		op_(op), rhs_(std::move(rhs)) {}
 
 	virtual double eval(SymbolTable& symbols);
-    virtual llvm::Value* codegen(SymbolTable& symbols);
+    virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:
 	char op_;
@@ -89,7 +98,7 @@ public:
 		variable_(std::move(variable)), value_(std::move(value)) {}
 
 	virtual double eval(SymbolTable& symbols);
-	virtual llvm::Value* codegen(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTVariable> variable_;
 	std::unique_ptr<ASTNode> value_;
@@ -118,7 +127,7 @@ public:
 		test_exp_(move(test_exp)), then_exp_(std::move(then_exp)) {}
 
 	virtual double eval(SymbolTable& symbols);
-	virtual llvm::Value* codegen(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTNode> test_exp_;
 	std::unique_ptr<ASTNode> then_exp_;
@@ -131,7 +140,7 @@ public:
 	name_(name), body_(std::move(body)), params_(std::move(params)) {}
 
 	virtual double eval(SymbolTable& symbols);
-	virtual llvm::Value* codegen(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 	std::vector<std::unique_ptr<ASTVariable>>& params() {return params_;}
 	std::unique_ptr<ASTNode>& body() {return body_;}
@@ -147,7 +156,7 @@ public:
 	name_(name), params_(std::move(params)) {}
 
 	virtual double eval(SymbolTable& symbols);
-    virtual llvm::Value* codegen(SymbolTable& symbols);
+    virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:
 	std::string name_;

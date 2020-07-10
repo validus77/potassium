@@ -1,5 +1,5 @@
 
-// Generated from /home/josh/Code/potassium/grammar/potassium_lexer.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_lexer.g4 by ANTLR 4.8
 
 
 #include "potassium_lexer.h"

@@ -38,48 +38,48 @@ double ASTBinaryOperation::eval(SymbolTable& symbols) {
 	}
 }
 
-llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols) {
+llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols, LLVMContext* context) {
 
-	llvm::Value *L = lhs_->codegen(symbols);
-	llvm::Value *R = rhs_->codegen(symbols);
+	llvm::Value *L = lhs_->codegen(symbols, context);
+	llvm::Value *R = rhs_->codegen(symbols, context);
 	if (!L || !R)
 		return nullptr;
 
 	switch (op_) {
 		case '*':
-			return Builder.CreateMul(L,R, "multtmp");
+			return context->builder.CreateMul(L,R, "multtmp");
 		case '/':
-			return Builder.CreateFDiv(L,R, "multdiv");
+			return context->builder.CreateFDiv(L,R, "multdiv");
         case '%':
-            return Builder.CreateFRem(L,R,"modtmp");
+            return context->builder.CreateFRem(L,R,"modtmp");
 		case '+':
-			return Builder.CreateFAdd(L, R, "addtmp");
+			return context->builder.CreateFAdd(L, R, "addtmp");
 		case '-':
-			return Builder.CreateSub(L, R, "subtmp");
+			return context->builder.CreateSub(L, R, "subtmp");
 		case '&':
-		    L = Builder.CreateAnd(L,R,"andtmp");
-            return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+		    L = context->builder.CreateAnd(L,R,"andtmp");
+            return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '|':
-            L = Builder.CreateOr(L,R,"ortmp");
-            return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+            L = context->builder.CreateOr(L,R,"ortmp");
+            return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '^':
-            L = Builder.CreateXor(L,R,"andtmp");
-            return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+            L = context->builder.CreateXor(L,R,"andtmp");
+            return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '=':
-			L = Builder.CreateFCmpUEQ(L,R,"eqtmp");
-            return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+			L = context->builder.CreateFCmpUEQ(L,R,"eqtmp");
+            return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		case '>':
-			L =  Builder.CreateFCmpUGT(L,R,"gttmp");
-			return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+			L =  context->builder.CreateFCmpUGT(L,R,"gttmp");
+			return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                                                                  "booltmp");
 		case '<':
-            L = Builder.CreateFCmpULT(L, R, "cmptmp");
+            L = context->builder.CreateFCmpULT(L, R, "cmptmp");
             // Convert bool 0/1 to double 0.0 or 1.0
-            return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
+            return context->builder.CreateUIToFP(L, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
 		default:
 			return nullptr;
@@ -95,13 +95,13 @@ double ASTUnaryOperation::eval(SymbolTable& symbols) {
 	}
 }
 
-llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols){
-    llvm::Value *R = rhs_->codegen(symbols);
+llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols, LLVMContext* context){
+    llvm::Value *R = rhs_->codegen(symbols, context);
 
     switch (op_) {
         case '!':
-            R =  Builder.CreateNot(R, "nottmp");
-            return Builder.CreateUIToFP(R, llvm::Type::getDoubleTy(PotassiumContext),
+            R =  context->builder.CreateNot(R, "nottmp");
+            return context->builder.CreateUIToFP(R, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
         default:
             return nullptr;
@@ -114,8 +114,8 @@ double ASTAssigment::eval(SymbolTable &symbols) {
 	return val;
 }
 
-llvm::Value* ASTAssigment::codegen(SymbolTable& symbols) {
-	llvm::Value* val = value_->codegen(symbols);
+llvm::Value* ASTAssigment::codegen(SymbolTable& symbols, LLVMContext* context) {
+	llvm::Value* val = value_->codegen(symbols, context);
 	symbols.setVar(variable_->name(), val);
 	return val;
 }
@@ -129,44 +129,44 @@ double ASTCond::eval(SymbolTable &symbols) {
 		return 0.0;
 }
 
-llvm::Value* ASTCond::codegen(SymbolTable& symbols) {
-	llvm::Value* test_value = test_exp_->codegen(symbols);
+llvm::Value* ASTCond::codegen(SymbolTable& symbols, LLVMContext* context) {
+	llvm::Value* test_value = test_exp_->codegen(symbols, context);
 	if (!test_value)
 		return nullptr;
-	test_value = Builder.CreateFCmpONE(
-		test_value, llvm::ConstantFP::get(PotassiumContext, llvm::APFloat(0.0)), "ifcond");
-	llvm::Function *function = Builder.GetInsertBlock()->getParent();
+	test_value = context->builder.CreateFCmpONE(
+		test_value, llvm::ConstantFP::get(context->potassium_context, llvm::APFloat(0.0)), "ifcond");
+	llvm::Function *function = context->builder.GetInsertBlock()->getParent();
 
 	llvm::BasicBlock *then_block =
-		llvm::BasicBlock::Create(PotassiumContext, "then", function);
-	llvm::BasicBlock *else_block = llvm::BasicBlock::Create(PotassiumContext, "else");
-	llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(PotassiumContext, "ifcont");
+		llvm::BasicBlock::Create(context->potassium_context, "then", function);
+	llvm::BasicBlock *else_block = llvm::BasicBlock::Create(context->potassium_context, "else");
+	llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(context->potassium_context, "ifcont");
 
-	Builder.CreateCondBr(test_value, then_block, else_block);
+    context->builder.CreateCondBr(test_value, then_block, else_block);
 // Then block
-	Builder.SetInsertPoint(then_block);
-	llvm::Value* then_value = then_exp_->codegen(symbols);
+    context->builder.SetInsertPoint(then_block);
+	llvm::Value* then_value = then_exp_->codegen(symbols, context);
 	if (!then_value)
 		return nullptr;
 
-	Builder.CreateBr(merge_block);
-	then_block = Builder.GetInsertBlock();
+    context->builder.CreateBr(merge_block);
+	then_block = context->builder.GetInsertBlock();
 // Else block
 	function->getBasicBlockList().push_back(else_block);
-	Builder.SetInsertPoint(else_block);
+    context->builder.SetInsertPoint(else_block);
 
-	llvm::Value* else_value = else_exp_->codegen(symbols);
+	llvm::Value* else_value = else_exp_->codegen(symbols, context);
 	if (!else_value)
 		return nullptr;
 
 // Merged IF Then Else
-	Builder.CreateBr(merge_block);
-	merge_block = Builder.GetInsertBlock();
+    context->builder.CreateBr(merge_block);
+	merge_block = context->builder.GetInsertBlock();
 
 	function->getBasicBlockList().push_back(merge_block);
-	Builder.SetInsertPoint(merge_block);
+    context->builder.SetInsertPoint(merge_block);
 	llvm::PHINode* phi =
-		Builder.CreatePHI(llvm::Type::getDoubleTy(PotassiumContext), 2, "iftmp");
+            context->builder.CreatePHI(llvm::Type::getDoubleTy(context->potassium_context), 2, "iftmp");
 
 	phi->addIncoming(then_value, then_block);
 	phi->addIncoming(else_value, else_block);
@@ -178,16 +178,16 @@ double ASTFunction::eval(SymbolTable &symbols) {
 	symbols.setFun(name_, std::unique_ptr<ASTFunction>(this));
 }
 
-llvm::Value* ASTFunction::codegen(SymbolTable& symbols) {
+llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 	// build the function type
 	std::vector<llvm::Type*> proto_arg_vector(params_.size() - 1,
-	                           llvm::Type::getDoubleTy(PotassiumContext));
+	                           llvm::Type::getDoubleTy(context->potassium_context));
 
 	llvm::FunctionType* function_type =
-		llvm::FunctionType::get(llvm::Type::getDoubleTy(PotassiumContext), proto_arg_vector, false);
+		llvm::FunctionType::get(llvm::Type::getDoubleTy(context->potassium_context), proto_arg_vector, false);
 
 	llvm::Function* function =
-		llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name_, PotassiumModule.get());
+		llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name_, context->potassium_module.get());
 	uint32_t idx = 0;
 	for (auto &Arg : function->args())
 	{
@@ -202,14 +202,14 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols) {
 	for (auto &Arg : function->args())
 		function_scope_symbols.setVar(Arg.getName(), &Arg);
 	// Build the function
-	llvm::BasicBlock* body = llvm::BasicBlock::Create(PotassiumContext, "func_body", function);
-	Builder.SetInsertPoint(body);
+	llvm::BasicBlock* body = llvm::BasicBlock::Create(context->potassium_context, "func_body", function);
+    context->builder.SetInsertPoint(body);
 
-	if (llvm::Value* ret_value = body_->codegen(function_scope_symbols)) {
+	if (llvm::Value* ret_value = body_->codegen(function_scope_symbols, context)) {
 		// Finish off the function.
-		Builder.CreateRet(ret_value);
+        context->builder.CreateRet(ret_value);
 		//Validate the generated code, checking for consistency.
-	//	llvm::verifyFunction(*function, &llvm::errs());
+		llvm::verifyFunction(*function, &llvm::errs());
 	}
 
 	return nullptr;
@@ -229,7 +229,7 @@ double ASTFunctionCall::eval(SymbolTable &symbols) {
 	return funct->body()->eval(function_scope_symbols);
 }
 
-llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols){
+llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols, LLVMContext* context){
 // Look up the name in the global module table.
     SymbolTable function_scope_symbols(&symbols);
 	llvm::Function *function = function_scope_symbols.getFunIR(name_);
@@ -245,11 +245,10 @@ llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols){
     }
     std::vector<llvm::Value *> paramsVal;
     for (unsigned i = 0, e = params_.size(); i != e; ++i) {
-        //function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols));
-        paramsVal.push_back(params_[i]->codegen(function_scope_symbols));
+        paramsVal.push_back(params_[i]->codegen(function_scope_symbols, context));
     }
 
-    return Builder.CreateCall(function, paramsVal, "calltmp");
+    return context->builder.CreateCall(function, paramsVal, "calltmp");
 }
 
 

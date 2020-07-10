@@ -30,7 +30,7 @@ void printBanner(bool jit = false) {
 	}
 }
 void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
-	potassium::potassium_interpreter_visitor& visitor) {
+	potassium::potassium_interpreter_visitor& visitor, potassium::ast::LLVMContext* llvmContext) {
 	std::stringstream stream;
 	stream << line << std::endl;
 	ANTLRInputStream input(stream);
@@ -40,14 +40,18 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 	potassium::potassium_parser::LineContext* tree = parser.line();
 	auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
 	program->eval(globals);
-	program->codegen(globals);
+	if(llvmContext) {
+        program->codegen(globals, llvmContext);
+    }
 }
 
 int main(int argc, char** argv)
 {
 	bool enableJIT = true;
+	std::unique_ptr<potassium::ast::LLVMContext> llvmContext;
+
 	if(enableJIT) {
-		potassium::ast::PotassiumModule = llvm::make_unique<llvm::Module>("potassium jit",potassium::ast::PotassiumContext);
+        llvmContext = std::make_unique<potassium::ast::LLVMContext>();
 	}
 
 	potassium::potassium_interpreter_visitor visitor;
@@ -73,7 +77,7 @@ int main(int argc, char** argv)
 		std::string line;
 		while (std::getline(preludeFile, line))
 		{
-			runPotassiumLine(line, global_symbols, visitor);
+			runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
 		}
 		if(interactive_mode)
 			cout << "Done" << endl;
@@ -97,9 +101,9 @@ int main(int argc, char** argv)
 				}
 			} else
 			{
-				runPotassiumLine(str_input, global_symbols, visitor);
+				runPotassiumLine(str_input, global_symbols, visitor, llvmContext.get());
 				if(enableJIT)
-					potassium::ast::PotassiumModule->print(llvm::errs(), nullptr);
+                    llvmContext->potassium_module->print(llvm::errs(), nullptr);
 			}
 		}
 	} else {
@@ -112,8 +116,8 @@ int main(int argc, char** argv)
 				std::string line;
 				while (std::getline(file, line))
 				{
-					potassium::ast::PotassiumModule->print(llvm::errs(), nullptr);
-					runPotassiumLine(line, global_symbols, visitor);
+					llvmContext->potassium_module->print(llvm::errs(), nullptr);
+					runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
 				}
 			}
 		}

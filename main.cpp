@@ -23,7 +23,10 @@ void printBanner(bool jit = false) {
 		 "                                                    " << endl;
 	cout << "Version: 0.0.1" << endl;
 	if(jit) {
-		cout << "JIT compiler enabled, Arch: x86-64" << endl;
+		auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+		cout << "JIT compiler enabled, Arch: "<< TargetTriple.c_str() << endl;
+	} else {
+		cout << "JIT compiler disabled" << endl;
 	}
 }
 void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,

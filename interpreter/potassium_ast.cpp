@@ -1,3 +1,4 @@
+#include <llvm/Support/raw_ostream.h>
 #include "potassium_ast.h"
 
 namespace potassium { namespace ast {
@@ -68,11 +69,11 @@ llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols) {
             return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
                                         "booltmp");
 		case '=':
-			L = Builder.CreateFCmpOEQ(L,R,"eqtmp");
+			L = Builder.CreateFCmpUEQ(L,R,"eqtmp");
             return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
                                         "booltmp");
 		case '>':
-			L =  Builder.CreateFCmpOGT(L,R,"gttmp");
+			L =  Builder.CreateFCmpUGT(L,R,"gttmp");
 			return Builder.CreateUIToFP(L, llvm::Type::getDoubleTy(PotassiumContext),
                                                                                  "booltmp");
 		case '<':
@@ -107,21 +108,17 @@ llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols){
     }
 }
 
-
 double ASTAssigment::eval(SymbolTable &symbols) {
 	double val = value_->eval(symbols);
 	symbols.setVar(variable_->name(), val);
 	return val;
 }
 
-
 llvm::Value* ASTAssigment::codegen(SymbolTable& symbols) {
 	llvm::Value* val = value_->codegen(symbols);
 	symbols.setVar(variable_->name(), val);
 	return val;
 }
-
-
 
 double ASTCond::eval(SymbolTable &symbols) {
 	if(!eq(test_exp_->eval(symbols), 0.0))
@@ -181,6 +178,43 @@ double ASTFunction::eval(SymbolTable &symbols) {
 	symbols.setFun(name_, std::unique_ptr<ASTFunction>(this));
 }
 
+llvm::Value* ASTFunction::codegen(SymbolTable& symbols) {
+	// build the function type
+	std::vector<llvm::Type*> proto_arg_vector(params_.size() - 1,
+	                           llvm::Type::getDoubleTy(PotassiumContext));
+
+	llvm::FunctionType* function_type =
+		llvm::FunctionType::get(llvm::Type::getDoubleTy(PotassiumContext), proto_arg_vector, false);
+
+	llvm::Function* function =
+		llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name_, PotassiumModule.get());
+	uint32_t idx = 0;
+	for (auto &Arg : function->args())
+	{
+		Arg.setName(params_[idx + 1]->name());
+		idx++;
+	}
+
+	 // insert the args in to the function scope
+	SymbolTable function_scope_symbols(&symbols);
+	symbols.setFun(name_, function);
+
+	for (auto &Arg : function->args())
+		function_scope_symbols.setVar(Arg.getName(), &Arg);
+	// Build the function
+	llvm::BasicBlock* body = llvm::BasicBlock::Create(PotassiumContext, "func_body", function);
+	Builder.SetInsertPoint(body);
+
+	if (llvm::Value* ret_value = body_->codegen(function_scope_symbols)) {
+		// Finish off the function.
+		Builder.CreateRet(ret_value);
+		//Validate the generated code, checking for consistency.
+	//	llvm::verifyFunction(*function, &llvm::errs());
+	}
+
+	return nullptr;
+}
+
 double ASTFunctionCall::eval(SymbolTable &symbols) {
 	SymbolTable function_scope_symbols(&symbols);
 	ASTFunction* funct = symbols.getFun(name_);
@@ -198,7 +232,8 @@ double ASTFunctionCall::eval(SymbolTable &symbols) {
 llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols){
 // Look up the name in the global module table.
     SymbolTable function_scope_symbols(&symbols);
-    llvm::Function *function =  PotassiumModule->getFunction(name_);
+	llvm::Function *function = function_scope_symbols.getFunIR(name_);
+    //llvm::Function *function =  PotassiumModule->getFunction(name_);
     if (!function) {
         std::cout << "No function defined: " << name_ << std::endl;
         return nullptr;

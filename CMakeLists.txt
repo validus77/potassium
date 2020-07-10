@@ -11,7 +11,7 @@ if (APPLE)
 elseif(UNIX)
     set(ANTLR4_PATH "/usr/local/include/")
     set(LLVM_PATH "/usr/include/llvm")
-    find_package(LLVM 3.8.0 REQUIRED CONFIG)
+    find_package(LLVM 8.0.0 REQUIRED CONFIG)
 endif()
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")

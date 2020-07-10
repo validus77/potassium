@@ -42,24 +42,25 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 
 int main(int argc, char** argv)
 {
+	bool enableJIT = true;
+	if(enableJIT) {
+		potassium::ast::PotassiumModule = llvm::make_unique<llvm::Module>("potassium jit",potassium::ast::PotassiumContext);
+	}
+
 	potassium::potassium_interpreter_visitor visitor;
 	potassium::ast::SymbolTable global_symbols;
 
 	// check if we are loading a file or interactive
 
 	bool interactive_mode = (argc <  2);
-	bool enableJIT = false;
 
 	if(interactive_mode)
 		printBanner(enableJIT);
 
-	if(enableJIT) {
-		potassium::ast::PotassiumModule = std::make_unique<llvm::Module>("potassium jit",potassium::ast::PotassiumContext);
-	}
 
 	//Read the prelude file
 	ifstream preludeFile;
-	preludeFile.open("../resources/prelude.k");
+	preludeFile.open("../resources/prelude.kk");
 	if (!preludeFile) {
 		if(interactive_mode)
 			cout << "Unable to open prelude file, no prelude functions loaded" << endl;

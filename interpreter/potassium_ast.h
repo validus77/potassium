@@ -50,7 +50,7 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols) {return symbols.getVar(name_);}
-	virtual llvm::Value *codegen(SymbolTable& symbols) {return symbols.getVarIR(name_);}
+	virtual llvm::Value* codegen(SymbolTable& symbols) {return symbols.getVarIR(name_);}
 private:
 	std::string name_;
 };
@@ -131,6 +131,8 @@ public:
 	name_(name), body_(std::move(body)), params_(std::move(params)) {}
 
 	virtual double eval(SymbolTable& symbols);
+	virtual llvm::Value* codegen(SymbolTable& symbols);
+
 	std::vector<std::unique_ptr<ASTVariable>>& params() {return params_;}
 	std::unique_ptr<ASTNode>& body() {return body_;}
 private:

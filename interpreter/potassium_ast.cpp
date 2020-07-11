@@ -1,30 +1,17 @@
-#include <llvm/Support/raw_ostream.h>
+#include "llvm/Support/raw_ostream.h"
 #include "llvm/ADT/APFloat.h"
-#include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Transforms/InstCombine/InstCombine.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Transforms/Scalar/GVN.h"
-#include <algorithm>
-#include <cassert>
+
 #include <cctype>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
 #include "potassium_ast.h"
 
@@ -133,6 +120,7 @@ llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols, LLVMContext* conte
 
     switch (op_) {
         case '!':
+            R = context->builder.CreateFPToUI(R,llvm::Type::getInt1Ty(context->potassium_context),"rhsi");
             R =  context->builder.CreateNot(R, "nottmp");
             return context->builder.CreateUIToFP(R, llvm::Type::getDoubleTy(context->potassium_context),
                                         "booltmp");
@@ -294,12 +282,12 @@ double ASTPrint::eval(SymbolTable& symbols, LLVMContext* context) {
     double result = 0.0;
     if(context)
     {
-        ASTFunction f("__anon_expr",std::move(value_),std::vector<std::unique_ptr<ASTVariable>>());
+        ASTFunction f("__print_expr",std::move(value_),std::vector<std::unique_ptr<ASTVariable>>());
         f.codegen(symbols, context);
         context->jit->addModule(std::move(context->potassium_module));
-        auto ExprSymbol = context->jit->findSymbol("__anon_expr");
-        double (*FP)() = (double (*)())(intptr_t)cantFail(ExprSymbol.getAddress());
-        result = FP();
+        auto jit_symbol = context->jit->findSymbol("__print_expr");
+        double (*jitFunc)() = (double (*)())(intptr_t)cantFail(jit_symbol.getAddress());
+        result = jitFunc();
         context->newModule();
     } else {
         result = value_->eval(symbols, context);

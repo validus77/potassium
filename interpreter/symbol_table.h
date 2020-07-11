@@ -34,6 +34,7 @@ public:
 
 	ASTFunction* getFun(std::string);
     llvm::Function* getFun(std::string, LLVMContext* context);
+
 	void setFun(std::string, std::unique_ptr<ASTFunction>);
 
 

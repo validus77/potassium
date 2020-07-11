@@ -1,12 +1,12 @@
 #pragma once
 
 #include "antlr4-runtime.h"
-#include "../potassium/potassium_parserVisitor.h"
+#include "../potassium/potassium_parserBaseVisitor.h"
 
 #include "potassium_ast.h"
 
 namespace potassium {
-    class  potassium_interpreter_visitor : public potassium_parserVisitor {
+    class  potassium_interpreter_visitor : public potassium_parserBaseVisitor {
     public:
 
         virtual antlrcpp::Any visitLine(potassium_parser::LineContext *ctx) override {
@@ -72,10 +72,6 @@ namespace potassium {
             return static_cast<ast::ASTNode*>(new ast::ASTVariable(ctx->getText()));
         }
 
-	    virtual antlrcpp::Any visitCondExpression(potassium_parser::CondExpressionContext *ctx) override {
-		    return visitChildren(ctx);
-	    }
-
 	    virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *ctx) override {
 		    auto test_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->test_exp).as<ast::ASTNode*>());
 		    auto then_exp = std::unique_ptr<ast::ASTNode>(this->visit(ctx->then_exp).as<ast::ASTNode*>());
@@ -91,11 +87,6 @@ namespace potassium {
 		    	new ast::ASTCond(std::move(test_exp), std::move(then_exp), std::move(else_exp)));
 	    }
 
-	    virtual antlrcpp::Any visitFunctionAssigmentStantment(potassium_parser::FunctionAssigmentStantmentContext
-	  *ctx) override {
-		    return visitChildren(ctx);
-	    }
-
 	    virtual antlrcpp::Any visitFunction_assignment(potassium_parser::Function_assignmentContext *ctx) override {
 		    auto body = std::unique_ptr<ast::ASTNode>(this->visit(ctx->expression()).as<ast::ASTNode*>());
 		    std::vector<std::unique_ptr<ast::ASTVariable>> params;
@@ -106,10 +97,6 @@ namespace potassium {
 		    }
 		    return static_cast<ast::ASTNode*>(new ast::ASTFunction(ctx->ID(0)->getText(), std::move(body), std::move
 		    (params)));
-	    }
-
-	    virtual antlrcpp::Any visitFuncCallExpression(potassium_parser::FuncCallExpressionContext *ctx) override {
-		    return visitChildren(ctx);
 	    }
 
 	    virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *ctx) override {

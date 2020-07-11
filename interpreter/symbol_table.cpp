@@ -55,8 +55,10 @@ void SymbolTable::setVar(std::string name, double value) {
 	}
 
 	llvm::Function* SymbolTable::getFun(std::string name, LLVMContext* context) {
+
         if(llvm::Function* fun = context->potassium_module->getFunction(name))
             return fun;
+
         if(ASTFunction* ast_function = getFun(name)) {
             size_t params_size = ast_function->params().size() == 0 ? 0 : ast_function->params().size() - 1;
             std::vector<llvm::Type *> proto_arg_vector(params_size,

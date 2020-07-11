@@ -30,23 +30,14 @@ namespace potassium { namespace ast {
 struct LLVMContext {
     LLVMContext(bool optimize = false):
         builder(potassium_context),
-        potassium_module(std::unique_ptr<llvm::Module>(new llvm::Module("potassium main",potassium_context))),
         optimize_(optimize) {
-
         llvm::InitializeNativeTarget();
         llvm::InitializeNativeTargetAsmPrinter();
         llvm::InitializeNativeTargetAsmParser();
 
         jit = std::make_unique<llvm::orc::PotassiumJIT>();
-        potassium_module->setDataLayout(jit->getTargetMachine().createDataLayout());
-        if(optimize_) {
-            fpm = std::make_unique<llvm::legacy::FunctionPassManager>(potassium_module.get());
-            fpm->add(llvm::createInstructionCombiningPass());
-            fpm->add(llvm::createReassociatePass());
-            fpm->add(llvm::createGVNPass());
-            fpm->add(llvm::createCFGSimplificationPass());
-            fpm->doInitialization();
-        }
+
+        newModule();
     }
 
     void newModule() {
@@ -61,11 +52,13 @@ struct LLVMContext {
             fpm->doInitialization();
         }
     }
+
     llvm::LLVMContext potassium_context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> potassium_module;
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     std::unique_ptr<llvm::orc::PotassiumJIT> jit;
+
 private:
     bool optimize_;
 };
@@ -76,11 +69,10 @@ public:
 
 	virtual ~ASTNode() {}
 	virtual double eval(SymbolTable& symbols, LLVMContext* context) {return 0.0;}
-	virtual llvm::Value *codegen(SymbolTable& symbols, LLVMContext* context) {return nullptr;}
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return nullptr;}
 
 protected:
 	bool eq(double lhs, double rhs);
-    LLVMContext* context = nullptr;
 };
 
 class ASTValue : public ASTNode {
@@ -146,8 +138,7 @@ private:
 
 class ASTPrint : public ASTNode {
 public:
-	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {
-	}
+	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {}
 	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTNode> value_;

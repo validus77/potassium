@@ -20,6 +20,7 @@
 
 namespace potassium { namespace ast {
 class ASTFunction;
+class LLVMContext;
 
 class SymbolTable {
 public:
@@ -32,15 +33,14 @@ public:
 	void setVar(std::string, llvm::Value*);
 
 	ASTFunction* getFun(std::string);
-    llvm::Function* getFunIR(std::string);
+    llvm::Function* getFunIR(std::string, LLVMContext* context);
 	void setFun(std::string, std::unique_ptr<ASTFunction>);
-    void setFun(std::string, llvm::Function*);
 
 
     std::vector<std::string> getFuns();
 private:
 	std::map<std::string, std::pair<double, llvm::Value*>> table_;
-	std::map<std::string, std::pair<std::unique_ptr<ASTFunction>, llvm::Function*>> func_table_;
+	std::map<std::string, std::unique_ptr<ASTFunction>> func_table_;
 	SymbolTable* parent_table_;
 };
 

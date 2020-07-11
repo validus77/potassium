@@ -1,4 +1,31 @@
 #include <llvm/Support/raw_ostream.h>
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 #include "potassium_ast.h"
 
 namespace potassium { namespace ast {
@@ -9,30 +36,30 @@ bool ASTNode::eq(double lhs, double rhs) {
 	return (diff < EPSILON) && (-diff < EPSILON);
 }
 
-double ASTBinaryOperation::eval(SymbolTable& symbols) {
+double ASTBinaryOperation::eval(SymbolTable& symbols, LLVMContext* context) {
 	switch (op_) {
 		case '*':
-			return lhs_->eval(symbols) * rhs_->eval(symbols);
+			return lhs_->eval(symbols, context) * rhs_->eval(symbols, context);
 		case '/':
-			return lhs_->eval(symbols) / rhs_->eval(symbols);
+			return lhs_->eval(symbols, context) / rhs_->eval(symbols, context);
         case '%':
-            return std::fmod(lhs_->eval(symbols), rhs_->eval(symbols));
+            return std::fmod(lhs_->eval(symbols, context), rhs_->eval(symbols, context));
 		case '+':
-			return lhs_->eval(symbols) + rhs_->eval(symbols);
+			return lhs_->eval(symbols, context) + rhs_->eval(symbols, context);
 		case '-':
-			return lhs_->eval(symbols) - rhs_->eval(symbols);
+			return lhs_->eval(symbols, context) - rhs_->eval(symbols, context);
 		case '&':
-			return (!eq(lhs_->eval(symbols), 0.0) && !eq(rhs_->eval(symbols), 0.0))? 1.0 : 0.0;
+			return (!eq(lhs_->eval(symbols, context), 0.0) && !eq(rhs_->eval(symbols, context), 0.0))? 1.0 : 0.0;
 		case '|':
-			return (!eq(lhs_->eval(symbols), 0.0) || !eq(rhs_->eval(symbols), 0.0))? 1.0 : 0.0;
+			return (!eq(lhs_->eval(symbols, context), 0.0) || !eq(rhs_->eval(symbols, context), 0.0))? 1.0 : 0.0;
 		case '^':
-			return (!eq(lhs_->eval(symbols), 0.0) != !eq(rhs_->eval(symbols), 0.0))? 1.0 : 0.0;
+			return (!eq(lhs_->eval(symbols, context), 0.0) != !eq(rhs_->eval(symbols, context), 0.0))? 1.0 : 0.0;
 		case '=':
-			return (lhs_->eval(symbols) == rhs_->eval(symbols))? 1.0 : 0.0;
+			return (lhs_->eval(symbols, context) == rhs_->eval(symbols, context))? 1.0 : 0.0;
 		case '>':
-			return (lhs_->eval(symbols) > rhs_->eval(symbols))? 1.0 : 0.0;
+			return (lhs_->eval(symbols, context) > rhs_->eval(symbols, context))? 1.0 : 0.0;
 		case '<':
-			return (lhs_->eval(symbols) < rhs_->eval(symbols))? 1.0 : 0.0;
+			return (lhs_->eval(symbols, context) < rhs_->eval(symbols, context))? 1.0 : 0.0;
 		default:
 			return 0.0;
 	}
@@ -92,10 +119,10 @@ llvm::Value* ASTBinaryOperation::codegen(SymbolTable& symbols, LLVMContext* cont
 	}
 }
 
-double ASTUnaryOperation::eval(SymbolTable& symbols) {
+double ASTUnaryOperation::eval(SymbolTable& symbols, LLVMContext* context) {
 	switch (op_) {
 		case '!':
-			return eq(rhs_->eval(symbols), 0.0);
+			return eq(rhs_->eval(symbols, context), 0.0);
 		default:
 			return 0.0;
 	}
@@ -114,9 +141,11 @@ llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols, LLVMContext* conte
     }
 }
 
-double ASTAssigment::eval(SymbolTable &symbols) {
-	double val = value_->eval(symbols);
+double ASTAssigment::eval(SymbolTable &symbols, LLVMContext* context) {
+	double val = value_->eval(symbols, context);
 	symbols.setVar(variable_->name(), val);
+	if(context)
+	    codegen(symbols, context);
 	return val;
 }
 
@@ -126,11 +155,11 @@ llvm::Value* ASTAssigment::codegen(SymbolTable& symbols, LLVMContext* context) {
 	return val;
 }
 
-double ASTCond::eval(SymbolTable &symbols) {
-	if(!eq(test_exp_->eval(symbols), 0.0))
-		return then_exp_->eval(symbols);
+double ASTCond::eval(SymbolTable &symbols, LLVMContext* context) {
+	if(!eq(test_exp_->eval(symbols, context), 0.0))
+		return then_exp_->eval(symbols, context);
 	else if(else_exp_)
-		return else_exp_->eval(symbols);
+		return else_exp_->eval(symbols, context);
 	else
 		return 0.0;
 }
@@ -180,13 +209,18 @@ llvm::Value* ASTCond::codegen(SymbolTable& symbols, LLVMContext* context) {
 }
 
 
-double ASTFunction::eval(SymbolTable &symbols) {
+double ASTFunction::eval(SymbolTable &symbols, LLVMContext* context) {
 	symbols.setFun(name_, std::unique_ptr<ASTFunction>(this));
+    if(context)
+        codegen(symbols, context);
+	return 0.0;
 }
 
 llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 	// build the function type
-	std::vector<llvm::Type*> proto_arg_vector(params_.size() - 1,
+
+	size_t params_size = params_.size() == 0? 0 : params_.size() -1;
+	std::vector<llvm::Type*> proto_arg_vector(params_size,
 	                           llvm::Type::getDoubleTy(context->potassium_context));
 
 	llvm::FunctionType* function_type =
@@ -203,7 +237,6 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 
 	 // insert the args in to the function scope
 	SymbolTable function_scope_symbols(&symbols);
-	symbols.setFun(name_, function);
 
 	for (auto &Arg : function->args())
 		function_scope_symbols.setVar(Arg.getName(), &Arg);
@@ -214,6 +247,8 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 	if (llvm::Value* ret_value = body_->codegen(function_scope_symbols, context)) {
 		// Finish off the function.
         context->builder.CreateRet(ret_value);
+        if(context->fpm)
+            context->fpm->run(*function);
 		//Validate the generated code, checking for consistency.
 		llvm::verifyFunction(*function, &llvm::errs());
 	}
@@ -221,7 +256,7 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 	return nullptr;
 }
 
-double ASTFunctionCall::eval(SymbolTable &symbols) {
+double ASTFunctionCall::eval(SymbolTable &symbols, LLVMContext* context) {
 	SymbolTable function_scope_symbols(&symbols);
 	ASTFunction* funct = symbols.getFun(name_);
 	if(funct == nullptr) {
@@ -230,16 +265,15 @@ double ASTFunctionCall::eval(SymbolTable &symbols) {
 	}
 	auto& funct_prams = funct->params();
 	for(int i = 0; i < params_.size(); i++) {
-		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols));
+		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols, context));
 	}
-	return funct->body()->eval(function_scope_symbols);
+	return funct->body()->eval(function_scope_symbols, context);
 }
 
 llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols, LLVMContext* context){
 // Look up the name in the global module table.
     SymbolTable function_scope_symbols(&symbols);
-	llvm::Function *function = function_scope_symbols.getFunIR(name_);
-    //llvm::Function *function =  PotassiumModule->getFunction(name_);
+	llvm::Function *function = function_scope_symbols.getFunIR(name_, context);
     if (!function) {
         std::cout << "No function defined: " << name_ << std::endl;
         return nullptr;
@@ -256,6 +290,23 @@ llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols, LLVMContext* context
 
     return context->builder.CreateCall(function, paramsVal, "calltmp");
 }
+double ASTPrint::eval(SymbolTable& symbols, LLVMContext* context) {
+    double result = 0.0;
+    if(context)
+    {
+        ASTFunction f("__anon_expr",std::move(value_),std::vector<std::unique_ptr<ASTVariable>>());
+        f.codegen(symbols, context);
+        context->jit->addModule(std::move(context->potassium_module));
+        auto ExprSymbol = context->jit->findSymbol("__anon_expr");
+        double (*FP)() = (double (*)())(intptr_t)cantFail(ExprSymbol.getAddress());
+        result = FP();
+        context->newModule();
+    } else {
+        result = value_->eval(symbols, context);
+    }
 
+    std::cout << result << std::endl;
+    return result;
+}
 
 }}

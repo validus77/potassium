@@ -16,19 +16,58 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Support/TargetSelect.h"
 
+#include "potassium_git.h"
 #include "symbol_table.h"
 
 namespace potassium { namespace ast {
 
 struct LLVMContext {
-    LLVMContext():
+    LLVMContext(bool optimize = false):
         builder(potassium_context),
-        potassium_module(std::unique_ptr<llvm::Module>(new llvm::Module("potassium jit",potassium_context))){}
+        potassium_module(std::unique_ptr<llvm::Module>(new llvm::Module("potassium main",potassium_context))),
+        optimize_(optimize) {
 
+        llvm::InitializeNativeTarget();
+        llvm::InitializeNativeTargetAsmPrinter();
+        llvm::InitializeNativeTargetAsmParser();
+
+        jit = std::make_unique<llvm::orc::PotassiumJIT>();
+        potassium_module->setDataLayout(jit->getTargetMachine().createDataLayout());
+        if(optimize_) {
+            fpm = std::make_unique<llvm::legacy::FunctionPassManager>(potassium_module.get());
+            fpm->add(llvm::createInstructionCombiningPass());
+            fpm->add(llvm::createReassociatePass());
+            fpm->add(llvm::createGVNPass());
+            fpm->add(llvm::createCFGSimplificationPass());
+            fpm->doInitialization();
+        }
+    }
+
+    void newModule() {
+        potassium_module = std::unique_ptr<llvm::Module>(new llvm::Module("potassium jit",potassium_context));
+        potassium_module->setDataLayout(jit->getTargetMachine().createDataLayout());
+        if(optimize_) {
+            fpm = std::make_unique<llvm::legacy::FunctionPassManager>(potassium_module.get());
+            fpm->add(llvm::createInstructionCombiningPass());
+            fpm->add(llvm::createReassociatePass());
+            fpm->add(llvm::createGVNPass());
+            fpm->add(llvm::createCFGSimplificationPass());
+            fpm->doInitialization();
+        }
+    }
     llvm::LLVMContext potassium_context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> potassium_module;
+    std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
+    std::unique_ptr<llvm::orc::PotassiumJIT> jit;
+private:
+    bool optimize_;
 };
 
 class ASTNode {
@@ -36,7 +75,7 @@ public:
     ASTNode() = default;
 
 	virtual ~ASTNode() {}
-	virtual double eval(SymbolTable& symbols) {return 0.0;}
+	virtual double eval(SymbolTable& symbols, LLVMContext* context) {return 0.0;}
 	virtual llvm::Value *codegen(SymbolTable& symbols, LLVMContext* context) {return nullptr;}
 
 protected:
@@ -47,7 +86,7 @@ protected:
 class ASTValue : public ASTNode {
 public:
 	ASTValue(double value) : value_(value) {}
-	virtual double eval(SymbolTable& symbols) { return value_;}
+	virtual double eval(SymbolTable& symbols, LLVMContext* context) { return value_;}
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {
 		return llvm::ConstantFP::get(context->potassium_context, llvm::APFloat(value_));}
 private:
@@ -58,7 +97,7 @@ class ASTVariable : public ASTNode {
 public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
-	virtual double eval(SymbolTable& symbols) {return symbols.getVar(name_);}
+	virtual double eval(SymbolTable& symbols, LLVMContext* context) {return symbols.getVar(name_);}
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return symbols.getVarIR(name_);}
 private:
 	std::string name_;
@@ -69,7 +108,7 @@ public:
 	ASTBinaryOperation(char op, std::unique_ptr<ASTNode> lhs, std::unique_ptr<ASTNode> rhs) :
 		op_(op), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:
@@ -83,7 +122,7 @@ public:
 	ASTUnaryOperation(char op, std::unique_ptr<ASTNode> rhs) :
 		op_(op), rhs_(std::move(rhs)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
     virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:
@@ -97,7 +136,7 @@ public:
 	ASTAssigment(std::unique_ptr<ASTVariable> variable, std::unique_ptr<ASTNode> value) :
 		variable_(std::move(variable)), value_(std::move(value)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTVariable> variable_;
@@ -109,11 +148,7 @@ class ASTPrint : public ASTNode {
 public:
 	ASTPrint(std::unique_ptr<ASTNode> value) : value_(std::move(value)) {
 	}
-	virtual double eval(SymbolTable& symbols) {
-        typedef std::numeric_limits< double > dbl;
-        std::cout << value_->eval(symbols) << std::endl;
-		return 0.0;
-	}
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTNode> value_;
 };
@@ -126,7 +161,7 @@ public:
 	ASTCond(std::unique_ptr<ASTNode> test_exp, std::unique_ptr<ASTNode> then_exp) :
 		test_exp_(move(test_exp)), then_exp_(std::move(then_exp)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTNode> test_exp_;
@@ -139,7 +174,7 @@ public:
 	ASTFunction(std::string name, std::unique_ptr<ASTNode> body, std::vector<std::unique_ptr<ASTVariable>> params) :
 	name_(name), body_(std::move(body)), params_(std::move(params)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 	std::vector<std::unique_ptr<ASTVariable>>& params() {return params_;}
@@ -155,7 +190,7 @@ public:
 	ASTFunctionCall(std::string name, std::vector<std::unique_ptr<ASTNode>> params) :
 	name_(name), params_(std::move(params)) {}
 
-	virtual double eval(SymbolTable& symbols);
+	virtual double eval(SymbolTable& symbols, LLVMContext* context);
     virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 
 private:

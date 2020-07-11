@@ -39,10 +39,7 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 	potassium::potassium_parser parser(&tokens);
 	potassium::potassium_parser::LineContext* tree = parser.line();
 	auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
-	program->eval(globals);
-	if(llvmContext) {
-        program->codegen(globals, llvmContext);
-    }
+	program->eval(globals, llvmContext);
 }
 
 int main(int argc, char** argv)
@@ -51,7 +48,7 @@ int main(int argc, char** argv)
 	std::unique_ptr<potassium::ast::LLVMContext> llvmContext;
 
 	if(enableJIT) {
-        llvmContext = std::make_unique<potassium::ast::LLVMContext>();
+        llvmContext = std::make_unique<potassium::ast::LLVMContext>(true);
 	}
 
 	potassium::potassium_interpreter_visitor visitor;
@@ -67,7 +64,7 @@ int main(int argc, char** argv)
 
 	//Read the prelude file
 	ifstream preludeFile;
-	preludeFile.open("../resources/prelude.kk");
+	preludeFile.open("../resources/prelude.k");
 	if (!preludeFile) {
 		if(interactive_mode)
 			cout << "Unable to open prelude file, no prelude functions loaded" << endl;
@@ -102,8 +99,8 @@ int main(int argc, char** argv)
 			} else
 			{
 				runPotassiumLine(str_input, global_symbols, visitor, llvmContext.get());
-				if(enableJIT)
-                    llvmContext->potassium_module->print(llvm::errs(), nullptr);
+			//	if(enableJIT)
+                //        llvmContext->potassium_module->print(llvm::errs(), nullptr);/
 			}
 		}
 	} else {

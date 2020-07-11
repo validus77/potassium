@@ -46,7 +46,7 @@ void SymbolTable::setVar(std::string name, double value) {
 	ASTFunction* SymbolTable::getFun(std::string name) {
 		auto it = func_table_.find(name);
 		if(it != func_table_.end())
-			return it->second.first.get();
+			return it->second.get();
 
 		else if(parent_table_) {
 			return parent_table_->getFun(name);
@@ -54,32 +54,30 @@ void SymbolTable::setVar(std::string name, double value) {
 		return nullptr; // this shoud be an error
 	}
 
-	llvm::Function* SymbolTable::getFunIR(std::string name) {
-            auto it = func_table_.find(name);
-            if(it != func_table_.end())
-                return it->second.second;
+	llvm::Function* SymbolTable::getFunIR(std::string name, LLVMContext* context) {
+        if(llvm::Function* fun = context->potassium_module->getFunction(name))
+            return fun;
+        if(ASTFunction* ast_function = getFun(name)) {
+            size_t params_size = ast_function->params().size() == 0 ? 0 : ast_function->params().size() - 1;
+            std::vector<llvm::Type *> proto_arg_vector(params_size,
+                                                       llvm::Type::getDoubleTy(context->potassium_context));
 
-            else if(parent_table_) {
-                return parent_table_->getFunIR(name);
-            }
-            return nullptr; // this shoud be an error
+            llvm::FunctionType *function_type =
+                    llvm::FunctionType::get(llvm::Type::getDoubleTy(context->potassium_context), proto_arg_vector,
+                                            false);
+
+            llvm::Function *function =
+                    llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name,
+                                           context->potassium_module.get());
+
+            return function;
         }
-
-	void SymbolTable::setFun(std::string name, std::unique_ptr<ASTFunction> fun) {
-	    auto it = func_table_.find(name);
-	    if(it != func_table_.end())
-	        it->second.first = std::move(fun);
-	    else
-		    func_table_[name] = std::make_pair(std::move(fun), nullptr);
+        return nullptr;
 	}
 
-	void SymbolTable::setFun(std::string name, llvm::Function* fun) {
-        auto it = func_table_.find(name);
-        if(it != func_table_.end())
-            it->second.second = fun;
-        else
-            func_table_[name] = std::make_pair(nullptr, fun);
-    }
+	void SymbolTable::setFun(std::string name, std::unique_ptr<ASTFunction> fun) {
+		    func_table_[name] = std::move(fun);
+	}
 
     std::vector<std::string> SymbolTable::getFuns() {
 		std::vector<std::string> out;

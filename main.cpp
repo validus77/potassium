@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <cstdlib>
 
 #include "./thrid-party/cxxopts.h"
@@ -8,6 +7,7 @@
 #include "./potassium/potassium_parser.h"
 #include "./potassium/potassium_lexer.h"
 #include "./interpreter/potassium_interpreter_visitor.h"
+#include "./interpreter/potassium_ast.h"
 
 
 using namespace std;
@@ -55,11 +55,13 @@ int main(int argc, char** argv)
     cxxopts::Options options("Potassium", "Minimal functional programming language");
 
     options.add_options()
-            ("d,no-jit", "Disable jit compiler", cxxopts::value<bool>()->default_value("false"))
+            ("n,no-jit", "Disable jit compiler", cxxopts::value<bool>()->default_value("false"))
+            ("O0", "Optimization disabled (applies only to jit)")
             ("f,file", "Source file to run, if in interactive mode will run first", cxxopts::value<std::string>())
             ("c,cmd-line", "Do not run in interactive mode", cxxopts::value<bool>()->default_value("false"))
-            ("h,help", "Print usage")
-            ;
+            ("d, debug", "Will print llvm IR in interactive mode (if jit not disabled)")
+            ("h,help", "Print usage");
+
     auto result = options.parse(argc, argv);
 
     if (result.count("help"))
@@ -73,7 +75,7 @@ int main(int argc, char** argv)
 	std::unique_ptr<potassium::ast::LLVMContext> llvmContext;
 
 	if(enableJIT) {
-        llvmContext = std::make_unique<potassium::ast::LLVMContext>(true);
+        llvmContext = std::make_unique<potassium::ast::LLVMContext>(!result.count("O0"));
 	}
 
 	potassium::potassium_interpreter_visitor visitor;
@@ -122,6 +124,10 @@ int main(int argc, char** argv)
 	{
 		string str_input;
 		cout << "type quit() to exit" << endl;
+		if(enableJIT && result.count("O0"))
+		    cout << "Optimization disabled" << endl;
+        if(enableJIT && result.count("debug"))
+            cout << "Debug mode enabled" << endl;
 		while (str_input != "quit()")
 		{
 			cout << "> ";
@@ -130,20 +136,22 @@ int main(int argc, char** argv)
 			{
 				cout << "Bye" << endl;
 				break;
-			} else if( str_input == "list_fun") {
+			} else if( str_input == "list_fun()") {
+			    cout << "Functions: " << endl;
 				for(auto& fun : global_symbols.getFuns()) {
-					cout << fun << endl;
+					cout << "\t" << fun << endl;
 				}
 			} else
 			{
 				runPotassiumLine(str_input, global_symbols, visitor, llvmContext.get());
-			//	if(enableJIT)
-                //        llvmContext->potassium_module->print(llvm::errs(), nullptr);/
+
+				if(enableJIT && result.count("debug")) {
+                    llvmContext->potassium_module->print(llvm::outs(), nullptr);
+                    cout << endl;
+                }
 			}
 		}
 	}
 
-
     return 0;
 }
-

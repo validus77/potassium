@@ -27,13 +27,13 @@ public:
 	SymbolTable() = default;
 	SymbolTable(SymbolTable* parent) : parent_table_(parent) {}
 	double getVar(std::string);
-	llvm::Value* getVarIR(std::string);
+	llvm::Value* getVar(std::string, LLVMContext*);
 
 	void setVar(std::string, double);
 	void setVar(std::string, llvm::Value*);
 
 	ASTFunction* getFun(std::string);
-    llvm::Function* getFunIR(std::string, LLVMContext* context);
+    llvm::Function* getFun(std::string, LLVMContext* context);
 	void setFun(std::string, std::unique_ptr<ASTFunction>);
 
 

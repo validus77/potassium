@@ -273,7 +273,7 @@ double ASTFunctionCall::eval(SymbolTable &symbols, LLVMContext* context) {
 llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols, LLVMContext* context){
 // Look up the name in the global module table.
     SymbolTable function_scope_symbols(&symbols);
-	llvm::Function *function = function_scope_symbols.getFunIR(name_, context);
+	llvm::Function *function = function_scope_symbols.getFun(name_, context);
     if (!function) {
         std::cout << "No function defined: " << name_ << std::endl;
         return nullptr;

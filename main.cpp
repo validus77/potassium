@@ -1,13 +1,13 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 
+#include "./thrid-party/cxxopts.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include "./potassium/potassium_parser.h"
 #include "./potassium/potassium_lexer.h"
 #include "./interpreter/potassium_interpreter_visitor.h"
-#include "./interpreter/potassium_ast.h"
-#include "./interpreter/symbol_table.h"
 
 
 using namespace std;
@@ -29,6 +29,14 @@ void printBanner(bool jit = false) {
 		cout << "JIT compiler disabled" << endl;
 	}
 }
+
+std::string env(const char *name)
+{
+    const char *ret = getenv(name);
+    if (!ret) return std::string();
+    return std::string(ret);
+}
+
 void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 	potassium::potassium_interpreter_visitor& visitor, potassium::ast::LLVMContext* llvmContext) {
 	std::stringstream stream;
@@ -44,7 +52,24 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 
 int main(int argc, char** argv)
 {
-	bool enableJIT = true;
+    cxxopts::Options options("Potassium", "Minimal functional programming language");
+
+    options.add_options()
+            ("d,no-jit", "Disable jit compiler", cxxopts::value<bool>()->default_value("false"))
+            ("f,file", "Source file to run, if in interactive mode will run first", cxxopts::value<std::string>())
+            ("c,cmd-line", "Do not run in interactive mode", cxxopts::value<bool>()->default_value("false"))
+            ("h,help", "Print usage")
+            ;
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help"))
+    {
+        std::cout << options.help() << std::endl;
+        exit(0);
+    }
+
+    bool enableJIT = !result.count("no-jit");
+
 	std::unique_ptr<potassium::ast::LLVMContext> llvmContext;
 
 	if(enableJIT) {
@@ -56,18 +81,18 @@ int main(int argc, char** argv)
 
 	// check if we are loading a file or interactive
 
-	bool interactive_mode = (argc <  2);
+	bool interactive_mode = !result.count("cmd-line");
 
 	if(interactive_mode)
 		printBanner(enableJIT);
 
-
 	//Read the prelude file
+    string prelude_path = env("POTASSIUM_PATH");
 	ifstream preludeFile;
-	preludeFile.open("../resources/prelude.k");
+	preludeFile.open(std::string(prelude_path) + "prelude.k");
 	if (!preludeFile) {
 		if(interactive_mode)
-			cout << "Unable to open prelude file, no prelude functions loaded" << endl;
+			cout << "Unable to open prelude file, no prelude functions loaded. Try setting POTASSIUM_PATH" << endl;
 	} else {
 		if(interactive_mode)
 			cout << "Loading prelude functions" << endl;
@@ -79,6 +104,19 @@ int main(int argc, char** argv)
 		if(interactive_mode)
 			cout << "Done" << endl;
 	}
+
+    if(result.count("file")) {
+        ifstream file;
+        file.open(result["file"].as<std::string>());
+        if (!file) {
+            cout << "Can not open file: " << result["file"].as<std::string>() << endl;
+        } else {
+            std::string line;
+            while (std::getline(file, line)) {
+                runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
+            }
+        }
+    }
 
 	if(interactive_mode)
 	{
@@ -101,21 +139,6 @@ int main(int argc, char** argv)
 				runPotassiumLine(str_input, global_symbols, visitor, llvmContext.get());
 			//	if(enableJIT)
                 //        llvmContext->potassium_module->print(llvm::errs(), nullptr);/
-			}
-		}
-	} else {
-		for(int i = 1; i < argc; i++) {
-			ifstream file;
-			file.open(argv[i]);
-			if (!file) {
-				cout << "Can not open file: " << argv[i] << endl;
-			} else {
-				std::string line;
-				while (std::getline(file, line))
-				{
-					llvmContext->potassium_module->print(llvm::errs(), nullptr);
-					runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
-				}
 			}
 		}
 	}

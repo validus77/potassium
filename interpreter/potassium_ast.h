@@ -98,7 +98,7 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols, LLVMContext* context) {return symbols.getVar(name_);}
-	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return symbols.getVarIR(name_);}
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return symbols.getVar(name_, context);}
 private:
 	std::string name_;
 };

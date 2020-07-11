@@ -3,6 +3,11 @@ project(potassium)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-O0")
+MESSAGE( STATUS "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS} )
+
+
 if (APPLE)
     set(ANTLR4_PATH "../antlr4-cpp-runtime-4")
     link_directories(${ANTLR4_PATH}/lib)

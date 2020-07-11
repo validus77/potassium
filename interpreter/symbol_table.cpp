@@ -12,12 +12,12 @@ namespace potassium { namespace  ast {
 		return 0.0; // this shoud be an error
 	}
 
-	llvm::Value* SymbolTable::getVarIR(std::string name) {
+	llvm::Value* SymbolTable::getVar(std::string name, LLVMContext* context) {
 		auto it = table_.find(name);
 		if(it != table_.end())
 			return it->second.second;
 		else if(parent_table_) {
-			return parent_table_->getVarIR(name);
+			return parent_table_->getVar(name, context);
 		}
 		return nullptr; // this shoud be an error
 	}
@@ -54,7 +54,7 @@ void SymbolTable::setVar(std::string name, double value) {
 		return nullptr; // this shoud be an error
 	}
 
-	llvm::Function* SymbolTable::getFunIR(std::string name, LLVMContext* context) {
+	llvm::Function* SymbolTable::getFun(std::string name, LLVMContext* context) {
         if(llvm::Function* fun = context->potassium_module->getFunction(name))
             return fun;
         if(ASTFunction* ast_function = getFun(name)) {

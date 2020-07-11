@@ -46,8 +46,15 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
 	CommonTokenStream tokens(&lexer);
 	potassium::potassium_parser parser(&tokens);
 	potassium::potassium_parser::LineContext* tree = parser.line();
-	auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
-	program->eval(globals, llvmContext);
+    try {
+        auto* program = visitor.visitLine(tree).as<potassium::ast::ASTNode*>();
+        program->eval(globals, llvmContext);
+    }
+    catch(...)
+    {
+        cout << "parse error, ignoring line: " << line << endl;
+        return;
+    }
 }
 
 int main(int argc, char** argv)
@@ -56,7 +63,7 @@ int main(int argc, char** argv)
 
     options.add_options()
             ("n,no-jit", "Disable jit compiler", cxxopts::value<bool>()->default_value("false"))
-            ("O0", "Optimization disabled (applies only to jit)")
+            ("O, O0", "Optimization disabled (applies only to jit)")
             ("f,file", "Source file to run, if in interactive mode will run first", cxxopts::value<std::string>())
             ("c,cmd-line", "Do not run in interactive mode", cxxopts::value<bool>()->default_value("false"))
             ("d, debug", "Will print llvm IR in interactive mode (if jit not disabled)")

@@ -28,9 +28,11 @@
 namespace potassium { namespace ast {
 
 struct LLVMContext {
-    LLVMContext(bool optimize = false):
+    LLVMContext(bool optimize = false, bool compile = false):
         builder(potassium_context),
-        optimize_(optimize) {
+        optimize_(optimize),
+        compile_only(compile) {
+
         llvm::InitializeNativeTarget();
         llvm::InitializeNativeTargetAsmPrinter();
         llvm::InitializeNativeTargetAsmParser();
@@ -58,6 +60,7 @@ struct LLVMContext {
     std::unique_ptr<llvm::Module> potassium_module;
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     std::unique_ptr<llvm::orc::PotassiumJIT> jit;
+    bool compile_only;
 
 private:
     bool optimize_;

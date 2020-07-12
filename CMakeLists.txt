@@ -26,7 +26,9 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 file(GLOB Parser_Sources SRC_FILES "./potassium/*.cpp")
 file(GLOB Interpreter_Sources "./interpreter/*.cpp")
 add_definitions(${LLVM_DEFINITIONS})
-add_executable(potassium ${Parser_Sources} ${Interpreter_Sources} main.cpp)
+
+add_executable(potassium-s ${Parser_Sources} ${Interpreter_Sources} shell.cpp)
+add_executable(potassium-c ${Parser_Sources} ${Interpreter_Sources} compiler.cpp)
 
 
 # Find the libraries that correspond to the LLVM components
@@ -47,5 +49,8 @@ llvm_map_components_to_libnames(
         irreader
 )
 
-target_include_directories(potassium PRIVATE ${ANTLR4_PATH}/antlr4-runtime ${LLVM_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(potassium antlr4-runtime.a  ${llvm_libs})
+target_include_directories(potassium-s PRIVATE ${ANTLR4_PATH}/antlr4-runtime ${LLVM_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(potassium-s antlr4-runtime.a  ${llvm_libs})
+
+target_include_directories(potassium-c PRIVATE ${ANTLR4_PATH}/antlr4-runtime ${LLVM_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(potassium-c antlr4-runtime.a  ${llvm_libs})

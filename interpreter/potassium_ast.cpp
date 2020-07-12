@@ -278,10 +278,14 @@ llvm::Value* ASTFunctionCall::codegen(SymbolTable& symbols, LLVMContext* context
 
     return context->builder.CreateCall(function, paramsVal, "calltmp");
 }
+
 double ASTPrint::eval(SymbolTable& symbols, LLVMContext* context) {
     double result = 0.0;
     if(context)
     {
+        if(context->compile_only)
+            return result;
+
         ASTFunction f("__print_expr",std::move(value_),std::vector<std::unique_ptr<ASTVariable>>());
         f.codegen(symbols, context);
         context->jit->addModule(std::move(context->potassium_module));

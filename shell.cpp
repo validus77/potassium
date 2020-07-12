@@ -4,10 +4,10 @@
 #include "./thrid-party/cxxopts.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "version.h"
 #include "./potassium/potassium_parser.h"
 #include "./potassium/potassium_lexer.h"
 #include "./interpreter/potassium_interpreter_visitor.h"
-#include "./interpreter/potassium_ast.h"
 
 
 using namespace std;
@@ -21,12 +21,13 @@ void printBanner(bool jit = false) {
 	        "| | | (_) | || (_| \\__ \\__ \\ (_| | | |_| | | | | | |\n"
 	        "\\_|  \\___/ \\__\\__,_|___/___/\\__,_|_|\\__,_|_| |_| |_|\n"
 		 "                                                    " << endl;
-	cout << "Version: 0.0.1" << endl;
+	cout << "Version: " << VER_STR << endl;
+    cout << "JIT compiler ";
 	if(jit) {
 		auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-		cout << "JIT compiler enabled, Arch: "<< TargetTriple.c_str() << endl;
+		cout << "enabled, Arch: "<< TargetTriple.c_str() << endl;
 	} else {
-		cout << "JIT compiler disabled" << endl;
+		cout << "disabled" << endl;
 	}
 }
 
@@ -67,13 +68,19 @@ int main(int argc, char** argv)
             ("f,file", "Source file to run, if in interactive mode will run first", cxxopts::value<std::string>())
             ("c,cmd-line", "Do not run in interactive mode", cxxopts::value<bool>()->default_value("false"))
             ("d, debug", "Will print llvm IR in interactive mode (if jit not disabled)")
+            ("v, version", "Print version number")
             ("h,help", "Print usage");
 
     auto result = options.parse(argc, argv);
 
-    if (result.count("help"))
-    {
+    if (result.count("help")) {
         std::cout << options.help() << std::endl;
+        exit(0);
+    }
+
+    if(result.count(("version"))) {
+        auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+        cout << VER_STR << " (" << TargetTriple.c_str() << ")" << endl;
         exit(0);
     }
 
@@ -131,10 +138,12 @@ int main(int argc, char** argv)
 	{
 		string str_input;
 		cout << "type quit() to exit" << endl;
+
 		if(enableJIT && result.count("O0"))
 		    cout << "Optimization disabled" << endl;
         if(enableJIT && result.count("debug"))
             cout << "Debug mode enabled" << endl;
+
 		while (str_input != "quit()")
 		{
 			cout << "> ";

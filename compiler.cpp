@@ -52,16 +52,9 @@ int buildObjFile(potassium::ast::LLVMContext* context, const string& outfile, cx
     }
 
     auto target_triple = llvm::sys::getDefaultTargetTriple();
-/*
-    llvm::InitializeAllTargetInfos();
-    llvm::InitializeAllTargets();
-    llvm::InitializeAllTargetMCs();
-    llvm::InitializeAllAsmParsers();
-    llvm::InitializeAllAsmPrinters();
-*/
+
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
-
 
     std::string error;
     auto* target = llvm::TargetRegistry::lookupTarget(target_triple, error);

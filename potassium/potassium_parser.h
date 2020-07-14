@@ -199,21 +199,21 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  FloatLiteralContext : public ExpressionContext {
+  public:
+    FloatLiteralContext(ExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *FLOATLIT();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  LogicalUnaryOperationContext : public ExpressionContext {
   public:
     LogicalUnaryOperationContext(ExpressionContext *ctx);
 
     antlr4::tree::TerminalNode *NOT();
     ExpressionContext *expression();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  FloatLiteralContext : public ExpressionContext {
-  public:
-    FloatLiteralContext(ExpressionContext *ctx);
-
-    antlr4::tree::TerminalNode *FLOATLIT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

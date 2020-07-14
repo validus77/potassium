@@ -40,9 +40,9 @@ public:
 
     virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *context) = 0;
 
-    virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *context) = 0;
-
     virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
+
+    virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *context) = 0;
 
     virtual antlrcpp::Any visitParenExpression(potassium_parser::ParenExpressionContext *context) = 0;
 

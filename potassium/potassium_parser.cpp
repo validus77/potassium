@@ -491,6 +491,21 @@ antlrcpp::Any potassium_parser::IntLiteralContext::accept(tree::ParseTreeVisitor
   else
     return visitor->visitChildren(this);
 }
+//----------------- FloatLiteralContext ------------------------------------------------------------------
+
+tree::TerminalNode* potassium_parser::FloatLiteralContext::FLOATLIT() {
+  return getToken(potassium_parser::FLOATLIT, 0);
+}
+
+potassium_parser::FloatLiteralContext::FloatLiteralContext(ExpressionContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any potassium_parser::FloatLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
+    return parserVisitor->visitFloatLiteral(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- LogicalUnaryOperationContext ------------------------------------------------------------------
 
 tree::TerminalNode* potassium_parser::LogicalUnaryOperationContext::NOT() {
@@ -507,21 +522,6 @@ potassium_parser::LogicalUnaryOperationContext::LogicalUnaryOperationContext(Exp
 antlrcpp::Any potassium_parser::LogicalUnaryOperationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
     return parserVisitor->visitLogicalUnaryOperation(this);
-  else
-    return visitor->visitChildren(this);
-}
-//----------------- FloatLiteralContext ------------------------------------------------------------------
-
-tree::TerminalNode* potassium_parser::FloatLiteralContext::FLOATLIT() {
-  return getToken(potassium_parser::FLOATLIT, 0);
-}
-
-potassium_parser::FloatLiteralContext::FloatLiteralContext(ExpressionContext *ctx) { copyFrom(ctx); }
-
-
-antlrcpp::Any potassium_parser::FloatLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<potassium_parserVisitor*>(visitor))
-    return parserVisitor->visitFloatLiteral(this);
   else
     return visitor->visitChildren(this);
 }
@@ -657,58 +657,58 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
     }
 
     case 2: {
-      _localctx = _tracker.createInstance<LogicalUnaryOperationContext>(_localctx);
-      _ctx = _localctx;
-      previousContext = _localctx;
-      setState(52);
-      match(potassium_parser::NOT);
-      setState(53);
-      expression(7);
-      break;
-    }
-
-    case 3: {
-      _localctx = _tracker.createInstance<CondExpressionContext>(_localctx);
-      _ctx = _localctx;
-      previousContext = _localctx;
-      setState(54);
-      cond_expresion();
-      break;
-    }
-
-    case 4: {
-      _localctx = _tracker.createInstance<FuncCallExpressionContext>(_localctx);
-      _ctx = _localctx;
-      previousContext = _localctx;
-      setState(55);
-      function_call();
-      break;
-    }
-
-    case 5: {
-      _localctx = _tracker.createInstance<VarReferenceContext>(_localctx);
-      _ctx = _localctx;
-      previousContext = _localctx;
-      setState(56);
-      match(potassium_parser::ID);
-      break;
-    }
-
-    case 6: {
       _localctx = _tracker.createInstance<IntLiteralContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(57);
+      setState(52);
       match(potassium_parser::INTLIT);
       break;
     }
 
-    case 7: {
+    case 3: {
       _localctx = _tracker.createInstance<FloatLiteralContext>(_localctx);
       _ctx = _localctx;
       previousContext = _localctx;
-      setState(58);
+      setState(53);
       match(potassium_parser::FLOATLIT);
+      break;
+    }
+
+    case 4: {
+      _localctx = _tracker.createInstance<LogicalUnaryOperationContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(54);
+      match(potassium_parser::NOT);
+      setState(55);
+      expression(5);
+      break;
+    }
+
+    case 5: {
+      _localctx = _tracker.createInstance<CondExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(56);
+      cond_expresion();
+      break;
+    }
+
+    case 6: {
+      _localctx = _tracker.createInstance<FuncCallExpressionContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(57);
+      function_call();
+      break;
+    }
+
+    case 7: {
+      _localctx = _tracker.createInstance<VarReferenceContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(58);
+      match(potassium_parser::ID);
       break;
     }
 
@@ -732,7 +732,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(61);
 
-          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
+          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
           setState(62);
           dynamic_cast<BinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
@@ -747,7 +747,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             consume();
           }
           setState(63);
-          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(10);
+          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(8);
           break;
         }
 
@@ -758,7 +758,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(64);
 
-          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
+          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
           setState(65);
           dynamic_cast<BinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
@@ -772,7 +772,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             consume();
           }
           setState(66);
-          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(9);
+          dynamic_cast<BinaryOperationContext *>(_localctx)->right = expression(7);
           break;
         }
 
@@ -783,7 +783,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
           pushNewRecursionContext(newContext, startState, RuleExpression);
           setState(67);
 
-          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
+          if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
           setState(68);
           dynamic_cast<LogicalBinaryOperationContext *>(_localctx)->op = _input->LT(1);
           _la = _input->LA(1);
@@ -800,7 +800,7 @@ potassium_parser::ExpressionContext* potassium_parser::expression(int precedence
             consume();
           }
           setState(69);
-          dynamic_cast<LogicalBinaryOperationContext *>(_localctx)->right = expression(7);
+          dynamic_cast<LogicalBinaryOperationContext *>(_localctx)->right = expression(5);
           break;
         }
 
@@ -1053,9 +1053,9 @@ bool potassium_parser::sempred(RuleContext *context, size_t ruleIndex, size_t pr
 
 bool potassium_parser::expressionSempred(ExpressionContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 0: return precpred(_ctx, 9);
-    case 1: return precpred(_ctx, 8);
-    case 2: return precpred(_ctx, 6);
+    case 0: return precpred(_ctx, 7);
+    case 1: return precpred(_ctx, 6);
+    case 2: return precpred(_ctx, 4);
 
   default:
     break;
@@ -1147,18 +1147,18 @@ potassium_parser::Initializer::Initializer() {
     0x2f, 0x30, 0x7, 0x13, 0x2, 0x2, 0x30, 0xb, 0x3, 0x2, 0x2, 0x2, 0x31, 
     0x32, 0x8, 0x7, 0x1, 0x2, 0x32, 0x33, 0x7, 0x12, 0x2, 0x2, 0x33, 0x34, 
     0x5, 0xc, 0x7, 0x2, 0x34, 0x35, 0x7, 0x13, 0x2, 0x2, 0x35, 0x3e, 0x3, 
-    0x2, 0x2, 0x2, 0x36, 0x37, 0x7, 0x18, 0x2, 0x2, 0x37, 0x3e, 0x5, 0xc, 
-    0x7, 0x9, 0x38, 0x3e, 0x5, 0xe, 0x8, 0x2, 0x39, 0x3e, 0x5, 0x10, 0x9, 
-    0x2, 0x3a, 0x3e, 0x7, 0x1b, 0x2, 0x2, 0x3b, 0x3e, 0x7, 0x5, 0x2, 0x2, 
-    0x3c, 0x3e, 0x7, 0x6, 0x2, 0x2, 0x3d, 0x31, 0x3, 0x2, 0x2, 0x2, 0x3d, 
-    0x36, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x38, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x39, 
+    0x2, 0x2, 0x2, 0x36, 0x3e, 0x7, 0x5, 0x2, 0x2, 0x37, 0x3e, 0x7, 0x6, 
+    0x2, 0x2, 0x38, 0x39, 0x7, 0x18, 0x2, 0x2, 0x39, 0x3e, 0x5, 0xc, 0x7, 
+    0x7, 0x3a, 0x3e, 0x5, 0xe, 0x8, 0x2, 0x3b, 0x3e, 0x5, 0x10, 0x9, 0x2, 
+    0x3c, 0x3e, 0x7, 0x1b, 0x2, 0x2, 0x3d, 0x31, 0x3, 0x2, 0x2, 0x2, 0x3d, 
+    0x36, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x37, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x38, 
     0x3, 0x2, 0x2, 0x2, 0x3d, 0x3a, 0x3, 0x2, 0x2, 0x2, 0x3d, 0x3b, 0x3, 
     0x2, 0x2, 0x2, 0x3d, 0x3c, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x4a, 0x3, 0x2, 
-    0x2, 0x2, 0x3f, 0x40, 0xc, 0xb, 0x2, 0x2, 0x40, 0x41, 0x9, 0x2, 0x2, 
-    0x2, 0x41, 0x49, 0x5, 0xc, 0x7, 0xc, 0x42, 0x43, 0xc, 0xa, 0x2, 0x2, 
-    0x43, 0x44, 0x9, 0x3, 0x2, 0x2, 0x44, 0x49, 0x5, 0xc, 0x7, 0xb, 0x45, 
-    0x46, 0xc, 0x8, 0x2, 0x2, 0x46, 0x47, 0x9, 0x4, 0x2, 0x2, 0x47, 0x49, 
-    0x5, 0xc, 0x7, 0x9, 0x48, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x48, 0x42, 0x3, 
+    0x2, 0x2, 0x3f, 0x40, 0xc, 0x9, 0x2, 0x2, 0x40, 0x41, 0x9, 0x2, 0x2, 
+    0x2, 0x41, 0x49, 0x5, 0xc, 0x7, 0xa, 0x42, 0x43, 0xc, 0x8, 0x2, 0x2, 
+    0x43, 0x44, 0x9, 0x3, 0x2, 0x2, 0x44, 0x49, 0x5, 0xc, 0x7, 0x9, 0x45, 
+    0x46, 0xc, 0x6, 0x2, 0x2, 0x46, 0x47, 0x9, 0x4, 0x2, 0x2, 0x47, 0x49, 
+    0x5, 0xc, 0x7, 0x7, 0x48, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x48, 0x42, 0x3, 
     0x2, 0x2, 0x2, 0x48, 0x45, 0x3, 0x2, 0x2, 0x2, 0x49, 0x4c, 0x3, 0x2, 
     0x2, 0x2, 0x4a, 0x48, 0x3, 0x2, 0x2, 0x2, 0x4a, 0x4b, 0x3, 0x2, 0x2, 
     0x2, 0x4b, 0xd, 0x3, 0x2, 0x2, 0x2, 0x4c, 0x4a, 0x3, 0x2, 0x2, 0x2, 

@@ -6,8 +6,8 @@ NEWLINE     : '\r\n' | '\r' | '\n';
 WS          : [\t ]+ -> skip;
 
 /** Litternals **/
-INTLIT      : '0'|[1-9][0-9]*;
-FLOATLIT    : '0'|[1-9][0-9]* '.' [0-9]+;
+INTLIT      : '-'? DIGIT+;
+FLOATLIT    : '-'? DIGIT+ '.' DIGIT+;
 
 /** Keywords **/
 
@@ -37,6 +37,9 @@ WHILE       : 'while';
  /** Identifiers **/
 
  ID         : [_]*[a-z][A-Za-z0-9_]*;
+
+ fragment
+ DIGIT: '0'..'9';
 
 
 

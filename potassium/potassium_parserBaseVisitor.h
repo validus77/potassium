@@ -57,11 +57,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
+  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
+  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
     return visitChildren(ctx);
   }
 

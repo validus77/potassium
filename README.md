@@ -8,8 +8,11 @@ Potassium is really designed to be as minimal as it can be and still be Turing c
 * expression can be typical arithmetic or logical expressions or funtion calls. 
 
 Examples:
+
 let var <- 42
+
 let fib(x) <- if(x < 2) x else fib(x-2) + fib(x-1)
+
 print(fib(var))
 
 This project build two applcation 

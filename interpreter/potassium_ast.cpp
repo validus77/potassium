@@ -301,4 +301,24 @@ double ASTPrint::eval(SymbolTable& symbols, LLVMContext* context) {
     return result;
 }
 
+double ASTBlock::eval(SymbolTable &symbols, LLVMContext *context) {
+    SymbolTable block_scope(&symbols);
+    double return_val;
+    for(auto& exp : expressions_) {
+        return_val = exp->eval(block_scope, context);
+    }
+
+    return return_val;
+}
+
+llvm::Value* ASTBlock::codegen(SymbolTable &symbols, LLVMContext *context) {
+    SymbolTable block_scope(&symbols);
+    llvm::Value* return_val;
+    for(auto& exp : expressions_) {
+        return_val = exp->codegen(block_scope, context);
+    }
+
+    return return_val;
+}
+
 }}

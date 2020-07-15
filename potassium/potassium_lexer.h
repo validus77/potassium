@@ -15,8 +15,8 @@ public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
     ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, AND = 18, OR = 19, EQ = 20, XOR = 21, 
-    NOT = 22, LT = 23, GT = 24, ID = 25
+    ASSIGN = 15, LPAREN = 16, RPAREN = 17, LBRACKET = 18, RBRACKET = 19, 
+    AND = 20, OR = 21, EQ = 22, XOR = 23, NOT = 24, LT = 25, GT = 26, ID = 27
   };
 
   potassium_lexer(antlr4::CharStream *input);

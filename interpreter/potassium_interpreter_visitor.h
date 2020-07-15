@@ -107,6 +107,17 @@ namespace potassium {
         	return static_cast<ast::ASTNode*>(new ast::ASTFunctionCall(ctx->ID()->getText(), std::move(params)));
 	    }
 
+        virtual antlrcpp::Any visitBlock(potassium_parser::BlockContext *ctx) override {
+            std::vector<std::unique_ptr<ast::ASTNode>> expressions;
+
+            for(auto& asg : ctx->assignment())
+                expressions.emplace_back(this->visit(asg).as<ast::ASTNode*>());
+            for(auto& exp : ctx->expression())
+                expressions.emplace_back(this->visit(exp).as<ast::ASTNode*>());
+
+            return static_cast<ast::ASTNode*>(new ast::ASTBlock(std::move(expressions)));
+        }
+
     private:
 
     };

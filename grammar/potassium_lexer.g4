@@ -27,6 +27,8 @@ WHILE       : 'while';
  ASSIGN     : '<-';
  LPAREN     : '(';
  RPAREN     : ')';
+ LBRACKET   : '{';
+ RBRACKET   : '}';
  AND        : '&';
  OR         : '|';
  EQ         : '=';

@@ -127,6 +127,7 @@ int main(int argc, char** argv)
         if (!file) {
             cout << "Can not open file: " << result["file"].as<std::string>() << endl;
         } else {
+            std::stringstream input;
             std::string line;
             while (std::getline(file, line)) {
                 runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
@@ -137,6 +138,9 @@ int main(int argc, char** argv)
 	if(interactive_mode)
 	{
 		string str_input;
+		stringstream  multi_line_input;
+        bool in_block = false;
+
 		cout << "type quit() to exit" << endl;
 
 		if(enableJIT && result.count("O0"))
@@ -157,13 +161,23 @@ int main(int argc, char** argv)
 				for(auto& fun : global_symbols.getFuns()) {
 					cout << "\t" << fun << endl;
 				}
-			} else
-			{
-				runPotassiumLine(str_input, global_symbols, visitor, llvmContext.get());
+			} else {
+			    multi_line_input << str_input << endl;
+                if (str_input.find('{') != std::string::npos) {
+                    in_block = true;
+                }
 
-				if(enableJIT && result.count("debug")) {
-                    llvmContext->potassium_module->print(llvm::outs(), nullptr);
-                    cout << endl;
+                if(in_block && (str_input.find('}') != std::string::npos)) {
+                    in_block = false;
+                }
+                if(!in_block) {
+                    runPotassiumLine(multi_line_input.str(), global_symbols, visitor, llvmContext.get());
+
+                    if (enableJIT && result.count("debug")) {
+                        llvmContext->potassium_module->print(llvm::outs(), nullptr);
+                        cout << endl;
+                    }
+                    multi_line_input.str(string());
                 }
 			}
 		}

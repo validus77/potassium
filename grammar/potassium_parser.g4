@@ -13,6 +13,7 @@ function_assignment : LET ID LPAREN ID* RPAREN ASSIGN  expression;
 print       : PRINT LPAREN expression RPAREN;
 
 expression  : LPAREN expression RPAREN                                  # parenExpression
+            | block                                                     # blockExpression
             | left=expression op=(MULT|DIV|MOD) right=expression        # binaryOperation
             | left=expression op=(PLUS|MINUS) right=expression          # binaryOperation
             | NOT expression                                            # logicalUnaryOperation
@@ -27,4 +28,7 @@ cond_expresion : IF LPAREN test_exp=expression RPAREN then_exp=expression       
                | IF LPAREN test_exp=expression RPAREN then_exp=expression ELSE else_exp=expression #ifElseCond;
 
 function_call: ID LPAREN expression* RPAREN;
+
+
+block : LBRACKET NEWLINE*  (expression NEWLINE* | assignment NEWLINE*)+ (NEWLINE* RBRACKET);
 

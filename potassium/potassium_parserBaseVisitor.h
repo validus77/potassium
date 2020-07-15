@@ -45,6 +45,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBlockExpression(potassium_parser::BlockExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitLogicalBinaryOperation(potassium_parser::LogicalBinaryOperationContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -57,11 +61,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
+  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
+  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -90,6 +94,10 @@ public:
   }
 
   virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitBlock(potassium_parser::BlockContext *ctx) override {
     return visitChildren(ctx);
   }
 

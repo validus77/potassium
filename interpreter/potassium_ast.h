@@ -192,4 +192,15 @@ private:
 	std::vector<std::unique_ptr<ASTNode>> params_;
 };
 
+class ASTBlock : public ASTNode {
+public:
+    ASTBlock(std::vector<std::unique_ptr<ASTNode>> expressions) : expressions_(std::move(expressions)) {}
+
+        virtual double eval(SymbolTable& symbols, LLVMContext* context);
+        virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
+
+private:
+            std::vector<std::unique_ptr<ASTNode>> expressions_;
+};
+
 }}

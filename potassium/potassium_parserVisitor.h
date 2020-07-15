@@ -34,15 +34,17 @@ public:
 
     virtual antlrcpp::Any visitPrint(potassium_parser::PrintContext *context) = 0;
 
+    virtual antlrcpp::Any visitBlockExpression(potassium_parser::BlockExpressionContext *context) = 0;
+
     virtual antlrcpp::Any visitLogicalBinaryOperation(potassium_parser::LogicalBinaryOperationContext *context) = 0;
 
     virtual antlrcpp::Any visitCondExpression(potassium_parser::CondExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *context) = 0;
 
-    virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
-
     virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *context) = 0;
+
+    virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
 
     virtual antlrcpp::Any visitParenExpression(potassium_parser::ParenExpressionContext *context) = 0;
 
@@ -57,6 +59,8 @@ public:
     virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *context) = 0;
 
     virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *context) = 0;
+
+    virtual antlrcpp::Any visitBlock(potassium_parser::BlockContext *context) = 0;
 
 
 };

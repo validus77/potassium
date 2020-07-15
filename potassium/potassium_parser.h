@@ -15,13 +15,14 @@ public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
     ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, AND = 18, OR = 19, EQ = 20, XOR = 21, 
-    NOT = 22, LT = 23, GT = 24, ID = 25
+    ASSIGN = 15, LPAREN = 16, RPAREN = 17, LBRACKET = 18, RBRACKET = 19, 
+    AND = 20, OR = 21, EQ = 22, XOR = 23, NOT = 24, LT = 25, GT = 26, ID = 27
   };
 
   enum {
     RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RuleFunction_assignment = 3, 
-    RulePrint = 4, RuleExpression = 5, RuleCond_expresion = 6, RuleFunction_call = 7
+    RulePrint = 4, RuleExpression = 5, RuleCond_expresion = 6, RuleFunction_call = 7, 
+    RuleBlock = 8
   };
 
   potassium_parser(antlr4::TokenStream *input);
@@ -41,7 +42,8 @@ public:
   class PrintContext;
   class ExpressionContext;
   class Cond_expresionContext;
-  class Function_callContext; 
+  class Function_callContext;
+  class BlockContext; 
 
   class  LineContext : public antlr4::ParserRuleContext {
   public:
@@ -163,6 +165,15 @@ public:
    
   };
 
+  class  BlockExpressionContext : public ExpressionContext {
+  public:
+    BlockExpressionContext(ExpressionContext *ctx);
+
+    BlockContext *block();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  LogicalBinaryOperationContext : public ExpressionContext {
   public:
     LogicalBinaryOperationContext(ExpressionContext *ctx);
@@ -199,21 +210,21 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  FloatLiteralContext : public ExpressionContext {
-  public:
-    FloatLiteralContext(ExpressionContext *ctx);
-
-    antlr4::tree::TerminalNode *FLOATLIT();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  LogicalUnaryOperationContext : public ExpressionContext {
   public:
     LogicalUnaryOperationContext(ExpressionContext *ctx);
 
     antlr4::tree::TerminalNode *NOT();
     ExpressionContext *expression();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  FloatLiteralContext : public ExpressionContext {
+  public:
+    FloatLiteralContext(ExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *FLOATLIT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -330,6 +341,26 @@ public:
   };
 
   Function_callContext* function_call();
+
+  class  BlockContext : public antlr4::ParserRuleContext {
+  public:
+    BlockContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LBRACKET();
+    antlr4::tree::TerminalNode *RBRACKET();
+    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
+    antlr4::tree::TerminalNode* NEWLINE(size_t i);
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+    std::vector<AssignmentContext *> assignment();
+    AssignmentContext* assignment(size_t i);
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  BlockContext* block();
 
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

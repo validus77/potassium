@@ -6,7 +6,7 @@ namespace potassium { namespace  ast {
 		auto it = table_.find(name);
 		if(it != table_.end())
 			return it->second.first;
-		else if(parent_table_) {
+		else if(parent_table_ != nullptr) {
 			return parent_table_->getVar(name);
 		}
 		return 0.0; // this shoud be an error

@@ -30,5 +30,5 @@ cond_expresion : IF LPAREN test_exp=expression RPAREN then_exp=expression       
 function_call: ID LPAREN expression* RPAREN;
 
 
-block : LBRACKET NEWLINE*  (expression NEWLINE* | assignment NEWLINE*)+ (NEWLINE* RBRACKET);
+block : LBRACKET NEWLINE*  ((expression | assignment) NEWLINE*)+ RBRACKET;
 

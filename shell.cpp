@@ -58,6 +58,7 @@ void runPotassiumLine(std::string line, potassium::ast::SymbolTable& globals,
     }
 }
 
+
 int main(int argc, char** argv)
 {
     cxxopts::Options options("Potassium", "Minimal functional programming language");
@@ -112,10 +113,21 @@ int main(int argc, char** argv)
 	} else {
 		if(interactive_mode)
 			cout << "Loading prelude functions" << endl;
+		std::stringstream multi_line_input;
 		std::string line;
-		while (std::getline(preludeFile, line))
-		{
-			runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
+		bool in_block = false;
+		while (std::getline(preludeFile, line)) {
+			multi_line_input << line << endl;
+			if (line.find('{') != std::string::npos) {
+				in_block = true;
+			}
+			if(in_block && (line.find('}') != std::string::npos)) {
+				in_block = false;
+			}
+			if(!in_block) {
+				runPotassiumLine(multi_line_input.str(), global_symbols, visitor, llvmContext.get());
+				multi_line_input.str(string());
+			}
 		}
 		if(interactive_mode)
 			cout << "Done" << endl;
@@ -127,10 +139,21 @@ int main(int argc, char** argv)
         if (!file) {
             cout << "Can not open file: " << result["file"].as<std::string>() << endl;
         } else {
-            std::stringstream input;
+            std::stringstream multi_line_input;
             std::string line;
+	        bool in_block = false;
             while (std::getline(file, line)) {
-                runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
+	            multi_line_input << line << endl;
+	            if (line.find('{') != std::string::npos) {
+		            in_block = true;
+	            }
+	            if(in_block && (line.find('}') != std::string::npos)) {
+		            in_block = false;
+	            }
+	            if(!in_block) {
+		            runPotassiumLine(multi_line_input.str(), global_symbols, visitor, llvmContext.get());
+		            multi_line_input.str(string());
+	            }
             }
         }
     }
@@ -150,7 +173,7 @@ int main(int argc, char** argv)
 
 		while (str_input != "quit()")
 		{
-			cout << "> ";
+			in_block? cout << "\t" : cout << "> ";
 			getline(cin, str_input);
 			if (str_input == "quit()")
 			{

@@ -119,9 +119,21 @@ int main(int argc, char** argv) {
             if (!file) {
                 cout << "Can not open file: " << file_name << endl;
             } else {
+	            bool in_block = false;
+	            stringstream  multi_line_input;
                 std::string line;
                 while (std::getline(file, line)) {
-                    runPotassiumLine(line, global_symbols, visitor, llvmContext.get());
+	                multi_line_input << line << endl;
+	                if (line.find('{') != std::string::npos) {
+		                in_block = true;
+	                }
+	                if(in_block && (line.find('}') != std::string::npos)) {
+		                in_block = false;
+	                }
+	                if(!in_block) {
+		                runPotassiumLine(multi_line_input.str(), global_symbols, visitor, llvmContext.get());
+		                multi_line_input.str(string());
+	                }
                 }
             }
         }

@@ -5,5 +5,8 @@ let ceiling(x) <- if(floor(x) = x) x else floor(x + 1)
 let sq(x) <- x * x
 let pow(x y) <- if(y = 0) 0 else if(y = 1) x else x * pow(x y - 1)
 let ilog(b n) <- if(n < b) 0 else ilog(b n/b) + 1.0
+let fact(x) <- if(x = 0) x else x * fact(x - 1)
+let choose(n r) <- fact(n) / (fact(r) * fact(n - r))
+let sum(n) <- (n * (n + 1)) / 2
 let pi <- 3.14159
 let e <- 2.71828

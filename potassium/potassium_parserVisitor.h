@@ -1,5 +1,5 @@
 
-// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -28,7 +28,9 @@ public:
 
     virtual antlrcpp::Any visitPrintStatment(potassium_parser::PrintStatmentContext *context) = 0;
 
-    virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *context) = 0;
+    virtual antlrcpp::Any visitInitialAssigment(potassium_parser::InitialAssigmentContext *context) = 0;
+
+    virtual antlrcpp::Any visitUpdateAssignment(potassium_parser::UpdateAssignmentContext *context) = 0;
 
     virtual antlrcpp::Any visitFunction_assignment(potassium_parser::Function_assignmentContext *context) = 0;
 
@@ -52,6 +54,8 @@ public:
 
     virtual antlrcpp::Any visitFuncCallExpression(potassium_parser::FuncCallExpressionContext *context) = 0;
 
+    virtual antlrcpp::Any visitWhileStatment(potassium_parser::WhileStatmentContext *context) = 0;
+
     virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *context) = 0;
 
     virtual antlrcpp::Any visitIfCond(potassium_parser::IfCondContext *context) = 0;
@@ -59,6 +63,8 @@ public:
     virtual antlrcpp::Any visitIfElseCond(potassium_parser::IfElseCondContext *context) = 0;
 
     virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *context) = 0;
+
+    virtual antlrcpp::Any visitWhile_loop(potassium_parser::While_loopContext *context) = 0;
 
     virtual antlrcpp::Any visitBlock(potassium_parser::BlockContext *context) = 0;
 

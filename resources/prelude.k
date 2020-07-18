@@ -8,5 +8,3 @@ let ilog(b n) <- if(n < b) 0 else ilog(b n/b) + 1.0
 let fact(x) <- if(x = 1) x else x * fact(x - 1)
 let choose(n r) <- fact(n) / (fact(r) * fact(n - r))
 let sum(n) <- (n * (n + 1)) / 2
-let pi <- 3.14159
-let e <- 2.71828

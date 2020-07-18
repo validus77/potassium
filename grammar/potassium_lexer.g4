@@ -17,6 +17,7 @@ PRINT       : 'print';
 IF          : 'if';
 ELSE        : 'else';
 WHILE       : 'while';
+MUT         : 'mut';
 
 /** Operators **/
  PLUS       : '+';

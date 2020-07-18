@@ -20,6 +20,8 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
+
 #include "llvm/Support/TargetSelect.h"
 
 #include "potassium_git.h"
@@ -51,6 +53,9 @@ struct LLVMContext {
             fpm->add(llvm::createReassociatePass());
             fpm->add(llvm::createGVNPass());
             fpm->add(llvm::createCFGSimplificationPass());
+            fpm->add(llvm::createPromoteMemoryToRegisterPass());
+            fpm->add(llvm::createInstructionCombiningPass());
+            fpm->add(llvm::createReassociatePass());
             fpm->doInitialization();
         }
     }
@@ -65,6 +70,19 @@ struct LLVMContext {
 private:
     bool optimize_;
 };
+
+
+// Ugly from totural should fix
+static llvm::AllocaInst* createEntryBlockAlloca(llvm::Function* function,
+                                                const std::string& varName,
+                                                LLVMContext* context) {
+    llvm::IRBuilder<> tmp(&function->getEntryBlock(),
+                          function->getEntryBlock().begin());
+
+    return tmp.CreateAlloca(llvm::Type::getDoubleTy(context->potassium_context), 0,
+                            varName.c_str());
+}
+
 
 class ASTNode {
 public:
@@ -93,7 +111,7 @@ public:
 	ASTVariable(const std::string name) : name_(name) {}
 	const std::string& name() { return name_; }
 	virtual double eval(SymbolTable& symbols, LLVMContext* context) {return symbols.getVar(name_);}
-	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return symbols.getVar(name_, context);}
+	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context) {return  context->builder.CreateLoad(symbols.getVar(name_, context), name_);}
 private:
 	std::string name_;
 };
@@ -128,15 +146,15 @@ private:
 
 class ASTAssigment : public ASTNode {
 public:
-	ASTAssigment(std::unique_ptr<ASTVariable> variable, std::unique_ptr<ASTNode> value) :
-		variable_(std::move(variable)), value_(std::move(value)) {}
+	ASTAssigment(std::unique_ptr<ASTVariable> variable, std::unique_ptr<ASTNode> value, bool mut) :
+		variable_(std::move(variable)), value_(std::move(value)), mut_(mut) {}
 
 	virtual double eval(SymbolTable& symbols, LLVMContext* context);
 	virtual llvm::Value* codegen(SymbolTable& symbols, LLVMContext* context);
 private:
 	std::unique_ptr<ASTVariable> variable_;
 	std::unique_ptr<ASTNode> value_;
-
+	bool mut_;
 };
 
 class ASTPrint : public ASTNode {

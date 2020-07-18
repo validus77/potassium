@@ -21,10 +21,15 @@ namespace potassium {
             return static_cast<ast::ASTNode*>(visit(ctx->print()));
         }
 
-        virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *ctx) override {
+        virtual antlrcpp::Any visitInitialAssigment(potassium_parser::InitialAssigmentContext *ctx) override {
 	        auto var = std::make_unique<ast::ASTVariable>(ctx->ID()->getText());
             auto value = std::unique_ptr<ast::ASTNode>(this->visit(ctx->expression()).as<ast::ASTNode*>());
-	        return static_cast<ast::ASTNode*>(new ast::ASTAssigment(std::move(var), std::move(value)));
+            bool mut = ctx->MUT() != nullptr;
+	        return static_cast<ast::ASTNode*>(new ast::ASTAssigment(std::move(var), std::move(value), mut));
+        }
+
+        virtual antlrcpp::Any visitUpdateAssignment(potassium_parser::UpdateAssignmentContext *ctx) override {
+            return visitChildren(ctx);
         }
 
         virtual antlrcpp::Any visitPrint(potassium_parser::PrintContext *ctx) override {

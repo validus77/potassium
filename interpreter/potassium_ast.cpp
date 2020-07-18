@@ -131,7 +131,7 @@ llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols, LLVMContext* conte
 
 double ASTAssigment::eval(SymbolTable &symbols, LLVMContext* context) {
 	double val = value_->eval(symbols, context);
-	symbols.setVar(variable_->name(), val);
+	symbols.setVar(variable_->name(), val, mut_);
 	if(context)
 	    codegen(symbols, context);
 	return val;
@@ -139,7 +139,10 @@ double ASTAssigment::eval(SymbolTable &symbols, LLVMContext* context) {
 
 llvm::Value* ASTAssigment::codegen(SymbolTable& symbols, LLVMContext* context) {
 	llvm::Value* val = value_->codegen(symbols, context);
-	symbols.setVar(variable_->name(), val);
+    llvm::Function* parent_function = context->builder.GetInsertBlock()->getParent();
+    llvm::AllocaInst* alloca = createEntryBlockAlloca(parent_function, variable_->name(), context);
+    context->builder.CreateStore(val, alloca);
+    symbols.setVar(variable_->name(), alloca, mut_);
 	return val;
 }
 
@@ -223,15 +226,22 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 		idx++;
 	}
 
-	 // insert the args in to the function scope
-	SymbolTable function_scope_symbols(&symbols);
-
-	for (auto &Arg : function->args())
-		function_scope_symbols.setVar(Arg.getName(), &Arg);
 	// Build the function
 	llvm::BasicBlock* body = llvm::BasicBlock::Create(context->potassium_context, "func_body", function);
     context->builder.SetInsertPoint(body);
 
+    // insert the args in to the function scope
+    SymbolTable function_scope_symbols(&symbols);
+    for (auto &Arg : function->args()) {
+        // Create an alloca for this variable.
+        llvm::AllocaInst* alloca = createEntryBlockAlloca(function, Arg.getName(), context);
+
+        // Store the initial value into the alloca.
+        context->builder.CreateStore(&Arg, alloca);
+
+        // Add arguments to variable symbol table.
+        function_scope_symbols.setVar(Arg.getName(), alloca, false);
+    }
 	if (llvm::Value* ret_value = body_->codegen(function_scope_symbols, context)) {
 		// Finish off the function.
         context->builder.CreateRet(ret_value);
@@ -253,7 +263,7 @@ double ASTFunctionCall::eval(SymbolTable &symbols, LLVMContext* context) {
 	}
 	auto& funct_prams = funct->params();
 	for(int i = 0; i < params_.size(); i++) {
-		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols, context));
+		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols, context), false);
 	}
 	return funct->body()->eval(function_scope_symbols, context);
 }

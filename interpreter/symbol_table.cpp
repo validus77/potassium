@@ -5,17 +5,17 @@ namespace potassium { namespace  ast {
 	double SymbolTable::getVar(std::string name) {
 		auto it = table_.find(name);
 		if(it != table_.end())
-			return it->second.first;
+			return it->second.value;
 		else if(parent_table_ != nullptr) {
 			return parent_table_->getVar(name);
 		}
 		return 0.0; // this shoud be an error
 	}
 
-	llvm::Value* SymbolTable::getVar(std::string name, LLVMContext* context) {
+        llvm::AllocaInst* SymbolTable::getVar(std::string name, LLVMContext* context) {
 		auto it = table_.find(name);
 		if(it != table_.end())
-			return it->second.second;
+			return it->second.llvm_value;
 		else if(parent_table_) {
 			return parent_table_->getVar(name, context);
 		}
@@ -23,27 +23,39 @@ namespace potassium { namespace  ast {
 	}
 
 
-void SymbolTable::setVar(std::string name, double value) {
+    void SymbolTable::setVar(std::string name, double value, bool mut) {
 		auto it = table_.find(name);
 		if(it != table_.end())
 		{
-			it->second.first = value;
+			it->second.value = value;
+			it->second.is_mutable = mut;
 		} else {
-			table_[name] = std::make_pair(value, nullptr);
+			table_[name] = Var {value, nullptr, mut};
 		}
 	}
 
-	void SymbolTable::setVar(std::string name, llvm::Value* value) {
+	void SymbolTable::setVar(std::string name, llvm::AllocaInst* value, bool mut) {
 		auto it = table_.find(name);
 		if(it != table_.end())
 		{
-			it->second.second = value;
+			it->second.llvm_value = value;
+			it->second.is_mutable = mut;
 		} else {
-			table_[name] = std::make_pair(0.0, value);
+			table_[name] = Var {0.0, value, mut};
 		}
 	}
 
-	ASTFunction* SymbolTable::getFun(std::string name) {
+	bool SymbolTable::varIsMut(std::string name) {
+        auto it = table_.find(name);
+        if(it != table_.end())
+        {
+            return it->second.is_mutable;
+        }
+        return false;
+	}
+
+
+        ASTFunction* SymbolTable::getFun(std::string name) {
 		auto it = func_table_.find(name);
 		if(it != func_table_.end())
 			return it->second.get();

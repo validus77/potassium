@@ -22,15 +22,21 @@ namespace potassium { namespace ast {
 class ASTFunction;
 class LLVMContext;
 
+struct Var {
+    double value = 0.0;
+    llvm::AllocaInst* llvm_value = nullptr;
+    bool is_mutable = false;
+};
 class SymbolTable {
 public:
 	SymbolTable() = default;
 	SymbolTable(SymbolTable* parent) : parent_table_(parent) {}
 	double getVar(std::string);
-	llvm::Value* getVar(std::string, LLVMContext*);
+    llvm::AllocaInst* getVar(std::string, LLVMContext*);
 
-	void setVar(std::string, double);
-	void setVar(std::string, llvm::Value*);
+	void setVar(std::string, double, bool);
+	void setVar(std::string, llvm::AllocaInst*, bool);
+	bool varIsMut(std::string);
 
 	ASTFunction* getFun(std::string);
     llvm::Function* getFun(std::string, LLVMContext* context);
@@ -40,7 +46,7 @@ public:
 
     std::vector<std::string> getFuns();
 private:
-	std::map<std::string, std::pair<double, llvm::Value*>> table_;
+	std::map<std::string, Var> table_;
 	std::map<std::string, std::unique_ptr<ASTFunction>> func_table_;
 	SymbolTable* parent_table_;
 };

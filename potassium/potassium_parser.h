@@ -1,5 +1,5 @@
 
-// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -14,15 +14,15 @@ class  potassium_parser : public antlr4::Parser {
 public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
-    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, LBRACKET = 18, RBRACKET = 19, 
-    AND = 20, OR = 21, EQ = 22, XOR = 23, NOT = 24, LT = 25, GT = 26, ID = 27
+    ELSE = 8, WHILE = 9, MUT = 10, PLUS = 11, MINUS = 12, MULT = 13, DIV = 14, 
+    MOD = 15, ASSIGN = 16, LPAREN = 17, RPAREN = 18, LBRACKET = 19, RBRACKET = 20, 
+    AND = 21, OR = 22, EQ = 23, XOR = 24, NOT = 25, LT = 26, GT = 27, ID = 28
   };
 
   enum {
     RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RuleFunction_assignment = 3, 
     RulePrint = 4, RuleExpression = 5, RuleCond_expresion = 6, RuleFunction_call = 7, 
-    RuleBlock = 8
+    RuleWhile_loop = 8, RuleBlock = 9
   };
 
   potassium_parser(antlr4::TokenStream *input);
@@ -43,6 +43,7 @@ public:
   class ExpressionContext;
   class Cond_expresionContext;
   class Function_callContext;
+  class While_loopContext;
   class BlockContext; 
 
   class  LineContext : public antlr4::ParserRuleContext {
@@ -104,15 +105,38 @@ public:
   class  AssignmentContext : public antlr4::ParserRuleContext {
   public:
     AssignmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    AssignmentContext() = default;
+    void copyFrom(AssignmentContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *LET();
+
+   
+  };
+
+  class  UpdateAssignmentContext : public AssignmentContext {
+  public:
+    UpdateAssignmentContext(AssignmentContext *ctx);
+
     antlr4::tree::TerminalNode *ID();
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();
 
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  InitialAssigmentContext : public AssignmentContext {
+  public:
+    InitialAssigmentContext(AssignmentContext *ctx);
+
+    antlr4::tree::TerminalNode *LET();
+    antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *ASSIGN();
+    ExpressionContext *expression();
+    antlr4::tree::TerminalNode *MUT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
   };
 
   AssignmentContext* assignment();
@@ -267,6 +291,15 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  WhileStatmentContext : public ExpressionContext {
+  public:
+    WhileStatmentContext(ExpressionContext *ctx);
+
+    While_loopContext *while_loop();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  VarReferenceContext : public ExpressionContext {
   public:
     VarReferenceContext(ExpressionContext *ctx);
@@ -341,6 +374,25 @@ public:
   };
 
   Function_callContext* function_call();
+
+  class  While_loopContext : public antlr4::ParserRuleContext {
+  public:
+    potassium_parser::ExpressionContext *test = nullptr;;
+    potassium_parser::ExpressionContext *body = nullptr;;
+    While_loopContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *WHILE();
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  While_loopContext* while_loop();
 
   class  BlockContext : public antlr4::ParserRuleContext {
   public:

@@ -14,9 +14,9 @@ class  potassium_lexer : public antlr4::Lexer {
 public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
-    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, LBRACKET = 18, RBRACKET = 19, 
-    AND = 20, OR = 21, EQ = 22, XOR = 23, NOT = 24, LT = 25, GT = 26, ID = 27
+    ELSE = 8, WHILE = 9, MUT = 10, PLUS = 11, MINUS = 12, MULT = 13, DIV = 14, 
+    MOD = 15, ASSIGN = 16, LPAREN = 17, RPAREN = 18, LBRACKET = 19, RBRACKET = 20, 
+    AND = 21, OR = 22, EQ = 23, XOR = 24, NOT = 25, LT = 26, GT = 27, ID = 28
   };
 
   potassium_lexer(antlr4::CharStream *input);

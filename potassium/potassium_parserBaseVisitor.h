@@ -1,5 +1,5 @@
 
-// Generated from /home/josh/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -33,7 +33,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAssignment(potassium_parser::AssignmentContext *ctx) override {
+  virtual antlrcpp::Any visitInitialAssigment(potassium_parser::InitialAssigmentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitUpdateAssignment(potassium_parser::UpdateAssignmentContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -81,6 +85,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitWhileStatment(potassium_parser::WhileStatmentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitVarReference(potassium_parser::VarReferenceContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -94,6 +102,10 @@ public:
   }
 
   virtual antlrcpp::Any visitFunction_call(potassium_parser::Function_callContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitWhile_loop(potassium_parser::While_loopContext *ctx) override {
     return visitChildren(ctx);
   }
 

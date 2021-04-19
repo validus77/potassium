@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -14,17 +14,18 @@ class  potassium_parser : public antlr4::Parser {
 public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
-    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, AND = 18, OR = 19, EQ = 20, XOR = 21, 
-    NOT = 22, LT = 23, GT = 24, ID = 25
+    ELSE = 8, WHILE = 9, INT = 10, FLOAT = 11, BYTE = 12, STRING = 13, PLUS = 14, 
+    MINUS = 15, MULT = 16, DIV = 17, MOD = 18, ASSIGN = 19, TYPE_DEF = 20, 
+    LPAREN = 21, RPAREN = 22, AND = 23, OR = 24, EQ = 25, XOR = 26, NOT = 27, 
+    LT = 28, GT = 29, ID = 30
   };
 
   enum {
-    RuleLine = 0, RuleStatement = 1, RuleAssignment = 2, RuleFunction_assignment = 3, 
-    RulePrint = 4, RuleExpression = 5, RuleCond_expresion = 6, RuleFunction_call = 7
+    RuleLine = 0, RuleType = 1, RuleStatement = 2, RuleAssignment = 3, RuleFunction_assignment = 4, 
+    RulePrint = 5, RuleExpression = 6, RuleCond_expresion = 7, RuleFunction_call = 8
   };
 
-  potassium_parser(antlr4::TokenStream *input);
+  explicit potassium_parser(antlr4::TokenStream *input);
   ~potassium_parser();
 
   virtual std::string getGrammarFileName() const override;
@@ -35,6 +36,7 @@ public:
 
 
   class LineContext;
+  class TypeContext;
   class StatementContext;
   class AssignmentContext;
   class Function_assignmentContext;
@@ -56,6 +58,21 @@ public:
   };
 
   LineContext* line();
+
+  class  TypeContext : public antlr4::ParserRuleContext {
+  public:
+    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *INT();
+    antlr4::tree::TerminalNode *FLOAT();
+    antlr4::tree::TerminalNode *BYTE();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeContext* type();
 
   class  StatementContext : public antlr4::ParserRuleContext {
   public:
@@ -105,6 +122,8 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LET();
     antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *TYPE_DEF();
+    TypeContext *type();
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();
 
@@ -199,21 +218,21 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  FloatLiteralContext : public ExpressionContext {
-  public:
-    FloatLiteralContext(ExpressionContext *ctx);
-
-    antlr4::tree::TerminalNode *FLOATLIT();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  LogicalUnaryOperationContext : public ExpressionContext {
   public:
     LogicalUnaryOperationContext(ExpressionContext *ctx);
 
     antlr4::tree::TerminalNode *NOT();
     ExpressionContext *expression();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  FloatLiteralContext : public ExpressionContext {
+  public:
+    FloatLiteralContext(ExpressionContext *ctx);
+
+    antlr4::tree::TerminalNode *FLOATLIT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

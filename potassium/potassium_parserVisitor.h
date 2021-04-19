@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -22,6 +22,8 @@ public:
    */
     virtual antlrcpp::Any visitLine(potassium_parser::LineContext *context) = 0;
 
+    virtual antlrcpp::Any visitType(potassium_parser::TypeContext *context) = 0;
+
     virtual antlrcpp::Any visitAssigmentStantment(potassium_parser::AssigmentStantmentContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionAssigmentStantment(potassium_parser::FunctionAssigmentStantmentContext *context) = 0;
@@ -40,9 +42,9 @@ public:
 
     virtual antlrcpp::Any visitIntLiteral(potassium_parser::IntLiteralContext *context) = 0;
 
-    virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
-
     virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *context) = 0;
+
+    virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *context) = 0;
 
     virtual antlrcpp::Any visitParenExpression(potassium_parser::ParenExpressionContext *context) = 0;
 

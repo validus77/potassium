@@ -131,7 +131,7 @@ llvm::Value* ASTUnaryOperation::codegen(SymbolTable& symbols, LLVMContext* conte
 
 double ASTAssigment::eval(SymbolTable &symbols, LLVMContext* context) {
 	double val = value_->eval(symbols, context);
-	symbols.setVar(variable_->name(), val);
+	symbols.setVar(variable_->name(), val, KType::FLOAT); //TODO: still using default type
 	if(context)
 	    codegen(symbols, context);
 	return val;
@@ -139,7 +139,7 @@ double ASTAssigment::eval(SymbolTable &symbols, LLVMContext* context) {
 
 llvm::Value* ASTAssigment::codegen(SymbolTable& symbols, LLVMContext* context) {
 	llvm::Value* val = value_->codegen(symbols, context);
-	symbols.setVar(variable_->name(), val);
+	symbols.setVar(variable_->name(), val, KType::FLOAT); //TODO: still using default type
 	return val;
 }
 
@@ -227,7 +227,7 @@ llvm::Value* ASTFunction::codegen(SymbolTable& symbols, LLVMContext* context) {
 	SymbolTable function_scope_symbols(&symbols);
 
 	for (auto &Arg : function->args())
-		function_scope_symbols.setVar(Arg.getName(), &Arg);
+		function_scope_symbols.setVar(Arg.getName(), &Arg, KType::FLOAT); //TODO: still using default type
 	// Build the function
 	llvm::BasicBlock* body = llvm::BasicBlock::Create(context->potassium_context, "func_body", function);
     context->builder.SetInsertPoint(body);
@@ -253,7 +253,7 @@ double ASTFunctionCall::eval(SymbolTable &symbols, LLVMContext* context) {
 	}
 	auto& funct_prams = funct->params();
 	for(int i = 0; i < params_.size(); i++) {
-		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols, context));
+		function_scope_symbols.setVar(funct_prams[i+1]->name(), params_[i]->eval(symbols, context), KType::FLOAT); //TODO: still using default type
 	}
 	return funct->body()->eval(function_scope_symbols, context);
 }

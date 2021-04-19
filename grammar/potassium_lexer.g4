@@ -18,6 +18,12 @@ IF          : 'if';
 ELSE        : 'else';
 WHILE       : 'while';
 
+/** Types **/
+INT         : 'int';
+FLOAT       : 'float';
+BYTE        : 'byte';
+STRING      : 'string';
+
 /** Operators **/
  PLUS       : '+';
  MINUS      : '-';
@@ -25,6 +31,7 @@ WHILE       : 'while';
  DIV        : '/';
  MOD        : '%';
  ASSIGN     : '<-';
+ TYPE_DEF   : ':';
  LPAREN     : '(';
  RPAREN     : ')';
  AND        : '&';

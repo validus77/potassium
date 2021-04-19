@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_parser.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -18,6 +18,10 @@ class  potassium_parserBaseVisitor : public potassium_parserVisitor {
 public:
 
   virtual antlrcpp::Any visitLine(potassium_parser::LineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitType(potassium_parser::TypeContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -57,11 +61,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
+  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitLogicalUnaryOperation(potassium_parser::LogicalUnaryOperationContext *ctx) override {
+  virtual antlrcpp::Any visitFloatLiteral(potassium_parser::FloatLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 

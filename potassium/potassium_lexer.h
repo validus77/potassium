@@ -1,5 +1,5 @@
 
-// Generated from /Users/jritteman/Code/potassium/grammar/potassium_lexer.g4 by ANTLR 4.8
+// Generated from /Users/jritteman/Code/potassium/grammar/potassium_lexer.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -14,12 +14,13 @@ class  potassium_lexer : public antlr4::Lexer {
 public:
   enum {
     NEWLINE = 1, WS = 2, INTLIT = 3, FLOATLIT = 4, LET = 5, PRINT = 6, IF = 7, 
-    ELSE = 8, WHILE = 9, PLUS = 10, MINUS = 11, MULT = 12, DIV = 13, MOD = 14, 
-    ASSIGN = 15, LPAREN = 16, RPAREN = 17, AND = 18, OR = 19, EQ = 20, XOR = 21, 
-    NOT = 22, LT = 23, GT = 24, ID = 25
+    ELSE = 8, WHILE = 9, INT = 10, FLOAT = 11, BYTE = 12, STRING = 13, PLUS = 14, 
+    MINUS = 15, MULT = 16, DIV = 17, MOD = 18, ASSIGN = 19, TYPE_DEF = 20, 
+    LPAREN = 21, RPAREN = 22, AND = 23, OR = 24, EQ = 25, XOR = 26, NOT = 27, 
+    LT = 28, GT = 29, ID = 30
   };
 
-  potassium_lexer(antlr4::CharStream *input);
+  explicit potassium_lexer(antlr4::CharStream *input);
   ~potassium_lexer();
 
   virtual std::string getGrammarFileName() const override;

@@ -3,11 +3,15 @@ options {   tokenVocab = potassium_lexer; }
 
 line        : statement (NEWLINE) ;
 
+type        : INT
+            | FLOAT
+            | BYTE;
+
 statement   : assignment            # assigmentStantment
             | function_assignment   # functionAssigmentStantment
             | print                 # printStatment;
 
-assignment  : LET ID ASSIGN  expression;
+assignment  : LET ID TYPE_DEF type ASSIGN  expression;
 function_assignment : LET ID LPAREN ID* RPAREN ASSIGN  expression;
 
 print       : PRINT LPAREN expression RPAREN;

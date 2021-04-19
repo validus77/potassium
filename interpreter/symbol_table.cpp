@@ -5,7 +5,7 @@ namespace potassium { namespace  ast {
 	double SymbolTable::getVar(std::string name) {
 		auto it = table_.find(name);
 		if(it != table_.end())
-			return it->second.first;
+			return it->second.float_val;
 		else if(parent_table_) {
 			return parent_table_->getVar(name);
 		}
@@ -15,31 +15,40 @@ namespace potassium { namespace  ast {
 	llvm::Value* SymbolTable::getVar(std::string name, LLVMContext* context) {
 		auto it = table_.find(name);
 		if(it != table_.end())
-			return it->second.second;
+			return it->second.llvm_value;
 		else if(parent_table_) {
 			return parent_table_->getVar(name, context);
 		}
 		return nullptr; // this shoud be an error
 	}
 
+	KType SymbolTable::getVarType(std::string name, LLVMContext* context) {
+        auto it = table_.find(name);
+        if(it != table_.end())
+            return it->second.type;
+        else if(parent_table_) {
+            return parent_table_->getVarType(name, context);
+        }
+        return KType::NULL_TYPE; // this should be an error
+	}
 
-void SymbolTable::setVar(std::string name, double value) {
+        void SymbolTable::setVar(std::string name, double value, const KType& type) {
 		auto it = table_.find(name);
 		if(it != table_.end())
 		{
-			it->second.first = value;
+			it->second.float_val = value;
 		} else {
-			table_[name] = std::make_pair(value, nullptr);
+			table_[name] = VarRecord(name, value, nullptr, type);
 		}
 	}
 
-	void SymbolTable::setVar(std::string name, llvm::Value* value) {
+	void SymbolTable::setVar(std::string name, llvm::Value* value, const KType& type) {
 		auto it = table_.find(name);
 		if(it != table_.end())
 		{
-			it->second.second = value;
+			it->second.llvm_value = value;
 		} else {
-			table_[name] = std::make_pair(0.0, value);
+			table_[name] = VarRecord(name, 0.0, value, type);
 		}
 	}
 
